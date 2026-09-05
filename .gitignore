@@ -1,0 +1,16 @@
+# Vivado-generated files (from VIVADO_VLSI_CHEATSHEET.md)
+*.jou
+*.log
+.Xil/
+*.cache/
+*.hw/
+*.ip_user_files/
+*.runs/
+*.sim/
+*.str
+
+# Additional common ignores
+*.wdb
+*.vcd
+*.pb
+build/

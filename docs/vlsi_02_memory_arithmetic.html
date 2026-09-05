@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Phase 2 — Memory, Sequential & Arithmetic Circuits | VLSI Course</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="vlsi_style.css">
+</head>
+<body>
+<div class="topnav">
+  <span class="brand">⚡ VLSI Course</span>
+  <a href="index.html">Home</a>
+  <a href="vlsi_01_electronics_cmos.html">1. CMOS Refresh</a>
+  <a href="vlsi_02_memory_arithmetic.html" class="current">2. Memory & Arithmetic</a>
+  <a href="vlsi_03_verilog_rtl.html">3. Verilog & RTL</a>
+  <a href="vlsi_04_physical_design.html">4. Physical Design</a>
+  <a href="vlsi_05_fabrication.html">5. Fabrication</a>
+  <a href="vlsi_06_dft_lowpower.html">6. DFT & Low Power</a>
+  <a href="vlsi_07_08_projects_nptel.html">7&8. Projects & NPTEL</a>
+</div>
+
+<div class="wrap">
+<h1>Phase 2 — Memory, Sequential & Arithmetic Circuits
+  <span class="sub">SRAM/DRAM, latches & flip-flops, adders & multipliers, interconnect. Duration: 6–8 weeks.</span>
+</h1>
+
+<h2>2.1 — MOS Memory Circuits</h2>
+
+<h3>6T SRAM cell</h3>
+<div class="figure">
+<svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:12px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:11px;fill:var(--muted);}</style>
+  <!-- Two cross coupled inverters -->
+  <text x="240" y="20" class="lbl" text-anchor="middle" font-weight="700" fill="var(--accent)">6T SRAM Cell</text>
+
+  <!-- Inverter 1 (left) -->
+  <rect x="90" y="60" width="90" height="70" rx="6" fill="none" stroke="var(--pmos)" stroke-width="1.5"/>
+  <text x="135" y="100" class="lbl" text-anchor="middle">Inv 1</text>
+  <!-- Inverter 2 (right) -->
+  <rect x="300" y="60" width="90" height="70" rx="6" fill="none" stroke="var(--pmos)" stroke-width="1.5"/>
+  <text x="345" y="100" class="lbl" text-anchor="middle">Inv 2</text>
+
+  <!-- cross couple wires -->
+  <line x1="180" y1="75" x2="300" y2="115" stroke="var(--accent)" stroke-width="1.5"/>
+  <line x1="180" y1="115" x2="300" y2="75" stroke="var(--accent)" stroke-width="1.5"/>
+  <circle cx="180" cy="75" r="3" fill="var(--accent)"/>
+  <circle cx="300" cy="115" r="3" fill="var(--accent)"/>
+  <text x="240" y="60" class="lbl-m" text-anchor="middle">Q</text>
+  <text x="240" y="150" class="lbl-m" text-anchor="middle">Q̄</text>
+
+  <!-- Access transistors -->
+  <circle cx="90" cy="180" r="16" fill="none" stroke="var(--nmos)" stroke-width="2"/>
+  <text x="90" y="184" class="lbl-m" text-anchor="middle" fill="var(--nmos)">M5</text>
+  <line x1="90" y1="130" x2="90" y2="164" stroke="var(--text)"/>
+  <line x1="90" y1="196" x2="90" y2="230" stroke="var(--text)"/>
+  <text x="60" y="215" class="lbl-m">BL</text>
+
+  <circle cx="390" cy="180" r="16" fill="none" stroke="var(--nmos)" stroke-width="2"/>
+  <text x="390" y="184" class="lbl-m" text-anchor="middle" fill="var(--nmos)">M6</text>
+  <line x1="390" y1="130" x2="390" y2="164" stroke="var(--text)"/>
+  <line x1="390" y1="196" x2="390" y2="230" stroke="var(--text)"/>
+  <text x="410" y="215" class="lbl-m">BL̄</text>
+
+  <!-- WL gate -->
+  <line x1="106" y1="180" x2="374" y2="180" stroke="var(--accent2)" stroke-dasharray="3 3"/>
+  <text x="240" y="195" class="lbl" text-anchor="middle" fill="var(--accent2)">Word Line (WL)</text>
+
+  <text x="240" y="270" class="lbl-m" text-anchor="middle">Read: precharge BL/BL̄, assert WL, sense amp detects the difference</text>
+  <text x="240" y="288" class="lbl-m" text-anchor="middle">Write: force BL/BL̄ hard, access transistors overpower the cross-coupled feedback</text>
+</svg>
+<div class="caption"><b>Fig 2.1 —</b> Two cross-coupled inverters (4 transistors) store Q/Q̄; two nMOS access transistors (M5, M6) connect the cell to bitlines BL/BL̄ when the wordline is asserted. Stability is measured via the Static Noise Margin (SNM), found from the "butterfly curve" — a common NPTEL diagram-based question.</div>
+</div>
+
+<div class="formula">
+Read SNM vs. Write SNM: opposing requirements
+Cell ratio (CR) = (W/L)driver / (W/L)access  → affects Read stability
+Pull-up ratio (PR) = (W/L)load / (W/L)access → affects Write ability
+</div>
+
+<h3>DRAM — 1T-1C cell</h3>
+<p>Single access transistor + storage capacitor. Read is <strong>destructive</strong> (charge redistributes onto the bitline) so data must be rewritten after every read, and cells need periodic <strong>refresh</strong> (~every 64 ms) because the capacitor leaks. Much denser than SRAM but slower — hence SRAM for caches/registers, DRAM for main memory.</p>
+
+<h3>Flash & ROM (awareness level)</h3>
+<p>Flash: floating-gate transistor, programmed via hot-carrier injection or Fowler-Nordheim tunneling. NOR flash (fast random read, byte-addressable) vs. NAND flash (denser, block-addressable, used in SSDs). ROM types: Mask ROM, PROM, EPROM, EEPROM — differ in how/whether they can be reprogrammed.</p>
+
+<hr>
+
+<h2>2.2 — Sequential Logic Circuits in CMOS <em class="tag badge-nptel">NPTEL Core</em></h2>
+
+<h3>D Flip-Flop (master-slave)</h3>
+<div class="figure">
+<svg viewBox="0 0 560 200" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:12px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:10px;fill:var(--muted);}</style>
+  <text x="280" y="20" class="lbl" text-anchor="middle" font-weight="700" fill="var(--accent)">Master-Slave D Flip-Flop</text>
+
+  <rect x="60" y="50" width="180" height="90" rx="6" fill="var(--panel2)" stroke="var(--nmos)"/>
+  <text x="150" y="80" class="lbl" text-anchor="middle" font-weight="700">Master Latch</text>
+  <text x="150" y="105" class="lbl-m" text-anchor="middle">transparent when CLK = 0</text>
+  <text x="150" y="122" class="lbl-m" text-anchor="middle">(D-latch, transmission gate based)</text>
+
+  <rect x="320" y="50" width="180" height="90" rx="6" fill="var(--panel2)" stroke="var(--accent2)"/>
+  <text x="410" y="80" class="lbl" text-anchor="middle" font-weight="700">Slave Latch</text>
+  <text x="410" y="105" class="lbl-m" text-anchor="middle">transparent when CLK = 1</text>
+  <text x="410" y="122" class="lbl-m" text-anchor="middle">holds output = Q</text>
+
+  <text x="20" y="100" class="lbl">D →</text>
+  <line x1="240" y1="95" x2="320" y2="95" stroke="var(--accent)" stroke-width="2"/>
+  <line x1="500" y1="95" x2="540" y2="95" stroke="var(--accent)" stroke-width="2"/>
+  <text x="545" y="100" class="lbl">Q</text>
+
+  <text x="280" y="175" class="lbl-m" text-anchor="middle">Net effect: edge-triggered behavior from two level-sensitive latches in series</text>
+</svg>
+<div class="caption"><b>Fig 2.2 —</b> Master latch is transparent while CLK=0 (captures D); when CLK rises, master closes and slave opens, passing the captured value to Q. This series combination is what gives a true edge-triggered flip-flop from two simple transmission-gate latches.</div>
+</div>
+
+<div class="formula">
+Timing constraint:  T_clk  &gt;  tCQ + t_comb + t_setup
+Setup time (tsetup), Hold time (thold), Clock-to-Q (tCQ)
+Metastability: if setup/hold violated, output can hang in an undefined state — quantified by MTBF (Mean Time Between Failures)
+</div>
+
+<div class="callout tip"><strong>Lab:</strong> Simulate a D flip-flop in LTSpice, measure tsetup, thold, tCQ directly from waveforms. Build a 4-bit shift register from D-FFs and verify serial in/out operation.</div>
+
+<hr>
+
+<h2>2.3 — Arithmetic Circuits <em class="tag badge-industry">Industry Core</em></h2>
+
+<h3>Adders</h3>
+<table>
+<tr><th>Adder type</th><th>Delay</th><th>Notes</th></tr>
+<tr><td>Ripple Carry Adder (RCA)</td><td>O(n) — delay = n × t<sub>FA</sub></td><td>Simplest, but slow for wide words</td></tr>
+<tr><td>Carry Lookahead Adder (CLA)</td><td>faster</td><td>Uses Generate (G) & Propagate (P) signals to compute carries ahead of time</td></tr>
+<tr><td>Carry Select Adder</td><td>faster still</td><td>Computes both carry-in=0 and carry-in=1 results in parallel, muxes the right one</td></tr>
+<tr><td>Kogge-Stone Adder</td><td>O(log n)</td><td>Parallel prefix adder — used in modern high-speed processors</td></tr>
+</table>
+
+<div class="figure">
+<svg viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:12px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:10px;fill:var(--muted);}</style>
+  <text x="300" y="20" class="lbl" text-anchor="middle" font-weight="700" fill="var(--accent)">Ripple Carry vs. Carry Lookahead — Critical Path</text>
+
+  <!-- RCA -->
+  <text x="60" y="55" class="lbl-m">RCA:</text>
+  <g>
+    <rect x="90" y="40" width="50" height="30" fill="var(--panel2)" stroke="var(--nmos)"/>
+    <text x="115" y="60" class="lbl-m" text-anchor="middle">FA0</text>
+    <rect x="160" y="40" width="50" height="30" fill="var(--panel2)" stroke="var(--nmos)"/>
+    <text x="185" y="60" class="lbl-m" text-anchor="middle">FA1</text>
+    <rect x="230" y="40" width="50" height="30" fill="var(--panel2)" stroke="var(--nmos)"/>
+    <text x="255" y="60" class="lbl-m" text-anchor="middle">FA2</text>
+    <rect x="300" y="40" width="50" height="30" fill="var(--panel2)" stroke="var(--nmos)"/>
+    <text x="325" y="60" class="lbl-m" text-anchor="middle">FA3</text>
+    <line x1="140" y1="55" x2="160" y2="55" stroke="var(--accent3)" stroke-width="2"/>
+    <line x1="210" y1="55" x2="230" y2="55" stroke="var(--accent3)" stroke-width="2"/>
+    <line x1="280" y1="55" x2="300" y2="55" stroke="var(--accent3)" stroke-width="2"/>
+    <text x="400" y="60" class="lbl-m" fill="var(--accent3)">carry ripples serially — slow for wide words</text>
+  </g>
+
+  <!-- CLA -->
+  <text x="60" y="140" class="lbl-m">CLA:</text>
+  <g>
+    <rect x="90" y="120" width="50" height="30" fill="var(--panel2)" stroke="var(--accent)"/>
+    <text x="115" y="140" class="lbl-m" text-anchor="middle">FA0</text>
+    <rect x="160" y="120" width="50" height="30" fill="var(--panel2)" stroke="var(--accent)"/>
+    <text x="185" y="140" class="lbl-m" text-anchor="middle">FA1</text>
+    <rect x="230" y="120" width="50" height="30" fill="var(--panel2)" stroke="var(--accent)"/>
+    <text x="255" y="140" class="lbl-m" text-anchor="middle">FA2</text>
+    <rect x="300" y="120" width="50" height="30" fill="var(--panel2)" stroke="var(--accent)"/>
+    <text x="325" y="140" class="lbl-m" text-anchor="middle">FA3</text>
+    <rect x="150" y="170" width="220" height="24" fill="none" stroke="var(--accent2)" stroke-dasharray="3 2"/>
+    <text x="260" y="187" class="lbl-m" text-anchor="middle" fill="var(--accent2)">Carry-Lookahead Generator (all Ci computed from G,P in parallel)</text>
+    <line x1="115" y1="150" x2="200" y2="170" stroke="var(--accent2)"/>
+    <line x1="185" y1="150" x2="230" y2="170" stroke="var(--accent2)"/>
+    <line x1="255" y1="150" x2="270" y2="170" stroke="var(--accent2)"/>
+    <line x1="325" y1="150" x2="320" y2="170" stroke="var(--accent2)"/>
+    <text x="400" y="140" class="lbl-m" fill="var(--accent)">all carries available almost immediately</text>
+  </g>
+</svg>
+<div class="caption"><b>Fig 2.3 —</b> RCA's carry chain ripples through every full adder — critical path grows linearly with word width. CLA precomputes carries from Generate (Gi = Ai·Bi) and Propagate (Pi = Ai⊕Bi) signals in a separate block, breaking the serial dependency.</div>
+</div>
+
+<h3>Multipliers</h3>
+<p><strong>Array multiplier:</strong> grid of AND gates + adders forming partial products, summed via a carry-save array. <strong>Booth encoding:</strong> reduces the number of partial products by roughly 2× by examining bit pairs/triples. <strong>Wallace tree:</strong> reduces partial products in parallel using carry-save adders, achieving O(log n) reduction depth. MAC (multiply-accumulate) units built from these are the workhorse of DSP chips and neural network accelerators.</p>
+
+<div class="callout tip"><strong>Lab:</strong>
+<ul class="checklist">
+<li>Implement 4-bit RCA in Verilog, verify with a testbench</li>
+<li>Implement 4-bit CLA in Verilog, compare critical path delay vs. RCA</li>
+<li>Synthesize both in Yosys (free), compare area and timing reports</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>2.4 — Interconnects, Wires & Signal Integrity</h2>
+
+<div class="figure">
+<svg viewBox="0 0 560 180" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:12px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:10px;fill:var(--muted);}</style>
+  <text x="280" y="20" class="lbl" text-anchor="middle" font-weight="700" fill="var(--accent)">Distributed RC Wire Model (Elmore Delay)</text>
+  <line x1="40" y1="90" x2="500" y2="90" stroke="var(--text)" stroke-width="2"/>
+  <text x="20" y="94" class="lbl-m">in</text>
+  <text x="510" y="94" class="lbl-m">out</text>
+
+  <!-- resistors along the wire -->
+  <g stroke="var(--accent2)" stroke-width="2" fill="none">
+    <path d="M 90 90 l6 -8 l12 16 l12 -16 l12 16 l12 -16 l6 8"/>
+    <path d="M 230 90 l6 -8 l12 16 l12 -16 l12 16 l12 -16 l6 8"/>
+    <path d="M 370 90 l6 -8 l12 16 l12 -16 l12 16 l12 -16 l6 8"/>
+  </g>
+  <text x="140" y="75" class="lbl-m" text-anchor="middle">R1</text>
+  <text x="280" y="75" class="lbl-m" text-anchor="middle">R2</text>
+  <text x="420" y="75" class="lbl-m" text-anchor="middle">R3</text>
+
+  <!-- caps to ground -->
+  <g stroke="var(--nmos)" stroke-width="2">
+    <line x1="180" y1="90" x2="180" y2="130" />
+    <line x1="170" y1="130" x2="190" y2="130"/>
+    <line x1="172" y1="136" x2="188" y2="136"/>
+    <line x1="320" y1="90" x2="320" y2="130" />
+    <line x1="310" y1="130" x2="330" y2="130"/>
+    <line x1="312" y1="136" x2="328" y2="136"/>
+    <line x1="460" y1="90" x2="460" y2="130" />
+    <line x1="450" y1="130" x2="470" y2="130"/>
+    <line x1="452" y1="136" x2="468" y2="136"/>
+  </g>
+  <text x="180" y="150" class="lbl-m" text-anchor="middle">C1</text>
+  <text x="320" y="150" class="lbl-m" text-anchor="middle">C2</text>
+  <text x="460" y="150" class="lbl-m" text-anchor="middle">C3</text>
+</svg>
+<div class="caption"><b>Fig 2.4 —</b> A wire is modeled as a ladder of lumped R and C segments. Elmore delay: tD = Σᵢ(Rᵢ × C<sub>downstream,i</sub>) — each resistor's delay contribution is weighted by all capacitance it must charge downstream. This is why long global wires dominate delay in modern chips even though gate delays keep shrinking.</div>
+</div>
+
+<div class="formula">
+Wire resistance: R = ρL / (W×H)     Sheet resistance: Rs = ρ/H  [Ω/□]
+</div>
+
+<h3>Signal integrity concerns</h3>
+<table>
+<tr><th>Issue</th><th>Cause</th><th>Mitigation</th></tr>
+<tr><td>Crosstalk noise</td><td>Capacitive coupling between adjacent wires</td><td>Shielding, spacing, layer assignment</td></tr>
+<tr><td>Crosstalk delay</td><td>Same coupling causes timing shift, not logic failure</td><td>Same as above; account for in STA</td></tr>
+<tr><td>Electromigration</td><td>Metal atoms migrate under high current density</td><td>Keep current density below Jmax by sizing wires</td></tr>
+<tr><td>IR drop</td><td>Voltage drop across resistive power grid under load</td><td>Wider power straps, more grid density, decap placement</td></tr>
+</table>
+
+<p><strong>Interconnect scaling note:</strong> RC delay actually <em>increases</em> as technology scales down, even as gate delay shrinks — this is why copper (lower resistivity than aluminum) and low-k dielectrics became necessary around the 1997 130nm node transition.</p>
+
+<h2>Resources for Phase 2</h2>
+<ul class="resource-list">
+<li>Weste & Harris — CMOS VLSI Design Ch. 4, 10, 11, 12</li>
+<li>Bhavani Prasad / Bhaaskaran — VLSI Design (NPTEL-aligned textbook)</li>
+<li>Bakoglu — Circuits, Interconnections and Packaging for VLSI</li>
+<li>NPTEL — Digital IC Design, IIT Bombay (sequential circuits, arithmetic units)</li>
+</ul>
+
+<div class="footer-nav">
+  <a href="vlsi_01_electronics_cmos.html">← Phase 1: CMOS Refresh</a>
+  <a href="vlsi_03_verilog_rtl.html">Phase 3: Verilog & RTL Design →</a>
+</div>
+</div>
+</body>
+</html>

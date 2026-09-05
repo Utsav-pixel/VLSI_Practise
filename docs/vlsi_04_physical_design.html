@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Phase 4 — Physical Design & STA | VLSI Course</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="vlsi_style.css">
+</head>
+<body>
+<div class="topnav">
+  <span class="brand">⚡ VLSI Course</span>
+  <a href="index.html">Home</a>
+  <a href="vlsi_01_electronics_cmos.html">1. CMOS Refresh</a>
+  <a href="vlsi_02_memory_arithmetic.html">2. Memory & Arithmetic</a>
+  <a href="vlsi_03_verilog_rtl.html">3. Verilog & RTL</a>
+  <a href="vlsi_04_physical_design.html" class="current">4. Physical Design</a>
+  <a href="vlsi_05_fabrication.html">5. Fabrication</a>
+  <a href="vlsi_06_dft_lowpower.html">6. DFT & Low Power</a>
+  <a href="vlsi_07_08_projects_nptel.html">7&8. Projects & NPTEL</a>
+</div>
+
+<div class="wrap">
+<h1>Phase 4 — Physical Design & Static Timing Analysis
+  <span class="sub">Floorplan → Placement → CTS → Routing → Signoff. The core "chip design" job skillset. Duration: 8 weeks.</span>
+</h1>
+
+<h2>4.1 — Physical Design Flow Overview</h2>
+
+<div class="figure">
+<svg viewBox="0 0 560 420" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:13px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:10px;fill:var(--muted);}</style>
+  <!-- stages -->
+  <g>
+    <rect x="140" y="10" width="280" height="40" rx="6" fill="var(--panel2)" stroke="var(--accent)"/>
+    <text x="280" y="35" class="lbl" text-anchor="middle">Synthesized Netlist + LEF/DEF + Liberty</text>
+  </g>
+  <line x1="280" y1="50" x2="280" y2="68" stroke="var(--muted)" marker-end="url(#a5)"/>
+
+  <rect x="140" y="68" width="280" height="40" rx="6" fill="var(--panel2)" stroke="var(--nmos)"/>
+  <text x="280" y="93" class="lbl" text-anchor="middle">1. FLOORPLANNING</text>
+  <line x1="280" y1="108" x2="280" y2="126" stroke="var(--muted)" marker-end="url(#a5)"/>
+
+  <rect x="140" y="126" width="280" height="40" rx="6" fill="var(--panel2)" stroke="var(--nmos)"/>
+  <text x="280" y="151" class="lbl" text-anchor="middle">2. PLACEMENT</text>
+  <line x1="280" y1="166" x2="280" y2="184" stroke="var(--muted)" marker-end="url(#a5)"/>
+
+  <rect x="140" y="184" width="280" height="40" rx="6" fill="var(--panel2)" stroke="var(--accent2)"/>
+  <text x="280" y="209" class="lbl" text-anchor="middle">3. CLOCK TREE SYNTHESIS (CTS)</text>
+  <line x1="280" y1="224" x2="280" y2="242" stroke="var(--muted)" marker-end="url(#a5)"/>
+
+  <rect x="140" y="242" width="280" height="40" rx="6" fill="var(--panel2)" stroke="var(--nmos)"/>
+  <text x="280" y="267" class="lbl" text-anchor="middle">4. ROUTING</text>
+  <line x1="280" y1="282" x2="280" y2="300" stroke="var(--muted)" marker-end="url(#a5)"/>
+
+  <rect x="140" y="300" width="280" height="40" rx="6" fill="var(--panel2)" stroke="var(--accent3)"/>
+  <text x="280" y="325" class="lbl" text-anchor="middle">5. SIGNOFF (STA, Power, DRC/LVS)</text>
+  <line x1="280" y1="340" x2="280" y2="358" stroke="var(--muted)" marker-end="url(#a5)"/>
+
+  <rect x="140" y="358" width="280" height="40" rx="6" fill="var(--panel2)" stroke="var(--good)"/>
+  <text x="280" y="383" class="lbl" text-anchor="middle">6. GDSII → Tape-out to Foundry</text>
+
+  <defs><marker id="a5" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="var(--muted)"/></marker></defs>
+</svg>
+<div class="caption"><b>Fig 4.1 —</b> Complete physical design flow. Each stage feeds forward but also loops back — e.g. routing congestion can force you back to placement, and STA failures can force ECO changes at any stage.</div>
+</div>
+
+<h3>Key file formats</h3>
+<table>
+<tr><th>Format</th><th>Contains</th></tr>
+<tr><td>LEF</td><td>Technology rules, cell abstracts (Library Exchange Format)</td></tr>
+<tr><td>DEF</td><td>Placement and routing data (Design Exchange Format)</td></tr>
+<tr><td>GDSII</td><td>Final layout database sent to the foundry</td></tr>
+<tr><td>SDF</td><td>Standard Delay Format — annotated timing for simulation</td></tr>
+<tr><td>SPEF</td><td>Standard Parasitic Exchange Format — extracted RC parasitics</td></tr>
+<tr><td>SDC</td><td>Design constraints, carried through the entire flow</td></tr>
+</table>
+
+<hr>
+
+<h2>4.2 — Floorplanning <em class="tag badge-industry">Industry Core</em></h2>
+
+<div class="figure">
+<svg viewBox="0 0 560 320" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:12px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:10px;fill:var(--muted);}</style>
+  <!-- die -->
+  <rect x="40" y="20" width="480" height="280" fill="none" stroke="var(--text)" stroke-width="2"/>
+  <text x="280" y="14" class="lbl" text-anchor="middle">Die boundary</text>
+
+  <!-- I/O pads -->
+  <g fill="var(--accent2)">
+    <rect x="40" y="20" width="480" height="10"/>
+    <rect x="40" y="290" width="480" height="10"/>
+    <rect x="40" y="20" width="10" height="280"/>
+    <rect x="510" y="20" width="10" height="280"/>
+  </g>
+  <text x="280" y="35" class="lbl-m" text-anchor="middle" fill="#0b1220">I/O pads around die boundary</text>
+
+  <!-- power ring -->
+  <rect x="55" y="35" width="450" height="250" fill="none" stroke="var(--nmos)" stroke-dasharray="4 3" stroke-width="2"/>
+  <text x="90" y="50" class="lbl-m" fill="var(--nmos)">VDD/VSS ring</text>
+
+  <!-- macros -->
+  <rect x="90" y="70" width="140" height="90" fill="var(--panel2)" stroke="var(--accent)"/>
+  <text x="160" y="120" class="lbl" text-anchor="middle">Macro (SRAM)</text>
+
+  <rect x="330" y="180" width="140" height="90" fill="var(--panel2)" stroke="var(--accent)"/>
+  <text x="400" y="230" class="lbl" text-anchor="middle">Macro (SRAM)</text>
+
+  <!-- halo -->
+  <rect x="80" y="60" width="160" height="110" fill="none" stroke="var(--accent3)" stroke-dasharray="2 2"/>
+  <text x="245" y="65" class="lbl-m" fill="var(--accent3)">halo/keepout</text>
+
+  <!-- standard cell rows -->
+  <g stroke="var(--muted)" stroke-width="1" opacity="0.5">
+    <line x1="270" y1="90" x2="500" y2="90"/>
+    <line x1="270" y1="105" x2="500" y2="105"/>
+    <line x1="270" y1="120" x2="500" y2="120"/>
+    <line x1="90" y1="200" x2="310" y2="200"/>
+    <line x1="90" y1="215" x2="310" y2="215"/>
+    <line x1="90" y1="230" x2="310" y2="230"/>
+    <line x1="90" y1="245" x2="500" y2="245"/>
+    <line x1="90" y1="260" x2="500" y2="260"/>
+  </g>
+  <text x="380" y="105" class="lbl-m">std cell rows</text>
+</svg>
+<div class="caption"><b>Fig 4.2 —</b> Floorplan: die area, I/O pad ring, power (VDD/VSS) ring and stripes, macro placement with keepout halos, and standard cell rows filling the remaining core area. Utilization target is typically 60–80%.</div>
+</div>
+
+<h3>Key concepts</h3>
+<ul class="checklist">
+<li>Core area = cell area / target utilization; aspect ratio = height/width</li>
+<li>I/O planning: pad placement, bus ordering, differential pair and analog isolation constraints</li>
+<li>Power planning: VDD/VSS rings + stripes, IR drop must stay &lt; ~10% of VDD, decoupling caps filter supply noise</li>
+<li>Well ties / substrate contacts prevent latch-up</li>
+<li>Macro placement (hard macros like SRAM) happens first, with a halo/keepout and routing channel reserved around them</li>
+</ul>
+
+<hr>
+
+<h2>4.3 — Placement</h2>
+<ul class="checklist">
+<li><strong>Global placement:</strong> simulated annealing, force-directed, min-cut partitioning, or modern analytical (quadratic wirelength) placement</li>
+<li><strong>Legalization:</strong> snap cells to the site grid, resolve overlaps, preserve relative ordering</li>
+<li><strong>Detailed placement:</strong> local swaps/shifts to improve timing on critical paths</li>
+<li><strong>Quality metrics:</strong> HPWL (Half-Perimeter Wire Length) as a wirelength proxy, congestion maps, pre-CTS timing estimate</li>
+</ul>
+
+<div class="callout tip"><strong>Lab:</strong> Run placement in OpenROAD on a small design (RISC-V core or AES). View the placement GUI, identify congestion hotspots, and read the timing report after placement.</div>
+
+<hr>
+
+<h2>4.4 — Clock Tree Synthesis (CTS) <em class="tag badge-nptel">NPTEL + Industry</em></h2>
+
+<div class="figure">
+<svg viewBox="0 0 460 300" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:11px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:10px;fill:var(--muted);}</style>
+  <text x="230" y="20" class="lbl" text-anchor="middle" font-weight="700" fill="var(--accent)" font-size="14">H-Tree Clock Distribution</text>
+  <circle cx="230" cy="45" r="5" fill="var(--accent2)"/>
+  <text x="230" y="35" class="lbl-m" text-anchor="middle">Clock source</text>
+
+  <line x1="230" y1="50" x2="230" y2="90" stroke="var(--accent)" stroke-width="2"/>
+  <line x1="110" y1="90" x2="350" y2="90" stroke="var(--accent)" stroke-width="2"/>
+  <line x1="110" y1="90" x2="110" y2="140" stroke="var(--accent)" stroke-width="2"/>
+  <line x1="350" y1="90" x2="350" y2="140" stroke="var(--accent)" stroke-width="2"/>
+
+  <line x1="60" y1="140" x2="160" y2="140" stroke="var(--accent)" stroke-width="1.5"/>
+  <line x1="300" y1="140" x2="400" y2="140" stroke="var(--accent)" stroke-width="1.5"/>
+
+  <line x1="60" y1="140" x2="60" y2="200" stroke="var(--accent)" stroke-width="1.5"/>
+  <line x1="160" y1="140" x2="160" y2="200" stroke="var(--accent)" stroke-width="1.5"/>
+  <line x1="300" y1="140" x2="300" y2="200" stroke="var(--accent)" stroke-width="1.5"/>
+  <line x1="400" y1="140" x2="400" y2="200" stroke="var(--accent)" stroke-width="1.5"/>
+
+  <g fill="var(--nmos)">
+    <circle cx="60" cy="200" r="5"/><circle cx="160" cy="200" r="5"/>
+    <circle cx="300" cy="200" r="5"/><circle cx="400" cy="200" r="5"/>
+  </g>
+  <text x="230" y="230" class="lbl-m" text-anchor="middle">Flip-flops (leaves) — every path from source is equal length</text>
+  <text x="230" y="260" class="lbl-m" text-anchor="middle">→ minimizes clock skew by construction</text>
+</svg>
+<div class="caption"><b>Fig 4.3 —</b> H-Tree: a symmetric binary tree where every leaf sees the same wire length from the clock source — ideal for regular structures like memory arrays. Real SoCs typically use a buffered, non-symmetric clock tree instead, matching delays with inserted buffers rather than geometry.</div>
+</div>
+
+<div class="formula">
+Setup relaxes with positive skew (δ):  T_clk &gt; tCQ + t_comb + t_setup − δ
+Hold tightens with positive skew:      t_hold &lt; tCQ + t_comb + δ   (negative skew = hold risk)
+</div>
+
+<table>
+<tr><th>CTS structure</th><th>Best for</th><th>Tradeoff</th></tr>
+<tr><td>H-Tree</td><td>Regular, square dies / memory arrays</td><td>Low skew, rigid structure</td></tr>
+<tr><td>Clock mesh</td><td>Large designs, irregular flop distribution</td><td>Low skew but higher power (more metal)</td></tr>
+<tr><td>Buffered tree</td><td>Typical SoC designs</td><td>Most common; matches delays via inserted buffers</td></tr>
+</table>
+
+<p><strong>Clock gating:</strong> an AND gate (via an Integrated Clock Gating cell, ICG) disables the clock to idle registers, cutting 30–40% of dynamic power in many designs. The enable signal must be stable well before the clock edge to avoid glitches.</p>
+
+<hr>
+
+<h2>4.5 — Routing</h2>
+<table>
+<tr><th>Layer</th><th>Typical use</th></tr>
+<tr><td>Metal1 (M1)</td><td>Local connections, standard cell pins</td></tr>
+<tr><td>Metal2–M4</td><td>Intermediate signal routing</td></tr>
+<tr><td>M5–Mtop</td><td>Power grid, long/global signals</td></tr>
+</table>
+
+<ul class="checklist">
+<li><strong>Global routing:</strong> divide the die into routing tiles (GRCs), assign nets to tiles respecting capacity</li>
+<li><strong>Detailed routing:</strong> Lee's maze algorithm (guaranteed path if one exists) or A* (faster, heuristic); track assignment; via minimization</li>
+<li><strong>DRC in routing:</strong> min spacing/width, via enclosure, metal density (for CMP planarity), antenna rules (charge accumulation during plasma etch)</li>
+<li><strong>Congestion fixes:</strong> layer promotion, detour routing, cell spreading; <strong>antenna violations</strong> fixed with diodes or jumpers to upper metal</li>
+</ul>
+
+<div class="callout tip"><strong>Lab:</strong> Run the complete flow (Floorplan → Place → CTS → Route → Extract → STA) in OpenROAD on a small design. Fix at least 3 DRC violations manually. Generate GDSII and view it in KLayout (free).</div>
+
+<hr>
+
+<h2>4.6 — Static Timing Analysis (STA) <em class="tag badge-nptel">MUST MASTER</em></h2>
+
+<div class="figure">
+<svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:12px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:10px;fill:var(--muted);}</style>
+  <text x="300" y="20" class="lbl" text-anchor="middle" font-weight="700" fill="var(--accent)">Register-to-Register Timing Path</text>
+
+  <rect x="40" y="90" width="70" height="50" fill="var(--panel2)" stroke="var(--nmos)"/>
+  <text x="75" y="120" class="lbl" text-anchor="middle">Launch FF</text>
+
+  <path d="M 110 105 h 60 l 20 20 l 20 -20 h 60" fill="none" stroke="var(--accent)" stroke-width="2"/>
+  <text x="220" y="90" class="lbl-m" text-anchor="middle">combinational logic (t_comb)</text>
+
+  <rect x="470" y="90" width="70" height="50" fill="var(--panel2)" stroke="var(--nmos)"/>
+  <text x="505" y="120" class="lbl" text-anchor="middle">Capture FF</text>
+  <line x1="270" y1="115" x2="470" y2="115" stroke="var(--accent)" stroke-width="2"/>
+
+  <!-- clock line -->
+  <line x1="75" y1="140" x2="75" y2="200" stroke="var(--accent2)" stroke-dasharray="3 2"/>
+  <line x1="505" y1="140" x2="505" y2="200" stroke="var(--accent2)" stroke-dasharray="3 2"/>
+  <line x1="75" y1="200" x2="505" y2="200" stroke="var(--accent2)" stroke-width="2"/>
+  <text x="290" y="215" class="lbl-m" fill="var(--accent2)">CLK (launch edge and capture edge, one period apart)</text>
+
+  <text x="300" y="245" class="lbl-m" text-anchor="middle">Setup: AAT + t_setup ≤ Capture clock + T_clk   |   Hold: AAT &gt; Capture clock + t_hold</text>
+</svg>
+<div class="caption"><b>Fig 4.4 —</b> The fundamental timing path every STA question is built around: data launched from one flip-flop's Q, through combinational logic, into the next flip-flop's D — checked against the clock period for setup, and against zero delay for hold.</div>
+</div>
+
+<div class="formula">
+Setup check:  Data Arrival Time (AAT) + t_setup ≤ Clock Arrival Time + T_clk
+Slack(setup) = (T_clk + clk_capture) − (clk_launch + tCQ + t_comb + t_setup)     [positive = PASS]
+
+Hold check:   AAT &gt; Clock Arrival Time + t_hold
+Slack(hold)  = (tCQ_min + t_comb_min) − t_hold      [must stay positive — NOT fixable by slowing the clock]
+</div>
+
+<div class="callout warn"><strong>Critical distinction:</strong> a setup violation can sometimes be masked by lowering clock frequency. A <strong>hold violation cannot</strong> — it exists regardless of frequency because it's about data arriving too early relative to the same clock edge. This is one of the most-asked STA interview questions.</div>
+
+<h3>Process corners</h3>
+<table>
+<tr><th>Corner</th><th>Meaning</th><th>Worst for</th></tr>
+<tr><td>SS (Slow-Slow)</td><td>Slow NMOS, slow PMOS</td><td>Setup</td></tr>
+<tr><td>FF (Fast-Fast)</td><td>Fast NMOS, fast PMOS</td><td>Hold</td></tr>
+<tr><td>TT (Typical-Typical)</td><td>Nominal</td><td>Baseline reference</td></tr>
+</table>
+<p>Higher temperature → slower (mobility drops); lower VDD → slower. On-Chip Variation (OCV) accounts for the fact that cells on the same die still vary — launch path gets a timing credit, capture path a penalty, with CPPR removing double-counted common-path pessimism.</p>
+
+<h3>Timing exceptions</h3>
+<table>
+<tr><th>Exception</th><th>SDC command</th><th>Meaning</th></tr>
+<tr><td>False path</td><td><code>set_false_path</code></td><td>Path never active in real operation</td></tr>
+<tr><td>Multicycle path</td><td><code>set_multicycle_path 2</code></td><td>Data allowed 2+ clock cycles to settle</td></tr>
+<tr><td>Max delay</td><td><code>set_max_delay</code></td><td>Direct constraint on a specific path</td></tr>
+</table>
+
+<h3>Reading a timing report</h3>
+<pre><code>Startpoint: launch_ff/Q
+Endpoint:   capture_ff/D
+Path Group: clk    Path Type: max (Setup)
+
+  Delay    Time   Description
+  ------   ----   -----------
+   0.00    0.00   clock clk (rise edge)
+   0.15    0.15   clock network delay (propagated)
+   0.25    0.40   launch_ff/Q (rising)
+   0.30    0.70   U1/A to U1/Z  AND2X1
+   0.20    0.90   U2/A to U2/Z  BUFX2
+   ------
+   0.90           data arrival time
+
+   5.00    5.00   clock period
+   0.12    5.12   clock network delay (capture, propagated)
+  -0.05    5.07   uncertainty
+  -0.12    4.95   setup time
+   ------
+   4.95           data required time
+
+   4.95 - 0.90 = 4.05 ns  ← SLACK (positive = pass)</code></pre>
+
+<div class="callout tip"><strong>Lab:</strong>
+<ul class="checklist">
+<li>Run OpenSTA on your synthesized design, read and understand the full timing report</li>
+<li>Identify the top 10 worst paths, trace their logic through the netlist</li>
+<li>Add a multicycle path exception and verify slack improves</li>
+<li>Switch the process corner from TT to SS and observe setup slack degrade</li>
+</ul>
+</div>
+
+<h2>Resources for Phase 4</h2>
+<ul class="resource-list">
+<li>Sherwani — Algorithms for VLSI Physical Design Automation</li>
+<li>Lavagno, Martin, Scheffer — Electronic Design Automation (EDA)</li>
+<li>NPTEL — "VLSI Physical Design", IIT Bombay</li>
+<li>Tools: OpenROAD (full flow), OpenSTA (timing), KLayout (GDS viewing) — all free</li>
+</ul>
+
+<div class="footer-nav">
+  <a href="vlsi_03_verilog_rtl.html">← Phase 3: Verilog & RTL</a>
+  <a href="vlsi_05_fabrication.html">Phase 5: Semiconductor Fabrication →</a>
+</div>
+</div>
+</body>
+</html>

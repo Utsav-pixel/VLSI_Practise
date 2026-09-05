@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Phase 5 — Semiconductor Fabrication | VLSI Course</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="vlsi_style.css">
+</head>
+<body>
+<div class="topnav">
+  <span class="brand">⚡ VLSI Course</span>
+  <a href="index.html">Home</a>
+  <a href="vlsi_01_electronics_cmos.html">1. CMOS Refresh</a>
+  <a href="vlsi_02_memory_arithmetic.html">2. Memory & Arithmetic</a>
+  <a href="vlsi_03_verilog_rtl.html">3. Verilog & RTL</a>
+  <a href="vlsi_04_physical_design.html">4. Physical Design</a>
+  <a href="vlsi_05_fabrication.html" class="current">5. Fabrication</a>
+  <a href="vlsi_06_dft_lowpower.html">6. DFT & Low Power</a>
+  <a href="vlsi_07_08_projects_nptel.html">7&8. Projects & NPTEL</a>
+</div>
+
+<div class="wrap">
+<h1>Phase 5 — Semiconductor Fabrication
+  <span class="sub">From sand to silicon wafer to finished CMOS transistor. Heavily tested on NPTEL. Duration: 4–5 weeks.</span>
+</h1>
+
+<h2>5.1 — Crystal Growth & Wafer Preparation</h2>
+<ul class="checklist">
+<li><strong>Czochralski method:</strong> pulling a single silicon crystal from a molten melt — the industry standard</li>
+<li><strong>Float-zone method:</strong> higher purity, but only for smaller wafers</li>
+<li>Modern wafer diameter: 300mm (12"); orientation typically (100) — lower interface state density than (110)/(111), which is why CMOS prefers it</li>
+<li>Crystal defects to know: point defects (vacancies, interstitials), line defects (dislocations), area defects (stacking faults)</li>
+</ul>
+
+<div class="figure">
+<svg viewBox="0 0 500 220" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:12px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:10px;fill:var(--muted);}</style>
+  <ellipse cx="200" cy="120" rx="150" ry="90" fill="var(--panel2)" stroke="var(--accent)" stroke-width="2"/>
+  <path d="M 60 130 A 150 90 0 0 1 100 55" fill="none" stroke="var(--accent2)" stroke-width="3"/>
+  <text x="90" y="45" class="lbl-m">notch/flat (orientation marker)</text>
+  <text x="200" y="125" class="lbl" text-anchor="middle">300mm Si Wafer</text>
+  <text x="200" y="145" class="lbl-m" text-anchor="middle">(100) orientation preferred for CMOS</text>
+  <text x="420" y="60" class="lbl-m" text-anchor="middle">Diameter: 300mm</text>
+  <text x="420" y="80" class="lbl-m" text-anchor="middle">Grown via</text>
+  <text x="420" y="95" class="lbl-m" text-anchor="middle">Czochralski pull</text>
+</svg>
+<div class="caption"><b>Fig 5.1 —</b> A finished 300mm silicon wafer with an orientation notch. This single wafer, after hundreds of fabrication steps, will hold hundreds of individual chip dies.</div>
+</div>
+
+<hr>
+
+<h2>5.2 — Thermal Oxidation <em class="tag badge-nptel">NPTEL Core</em></h2>
+<table>
+<tr><th>Type</th><th>Reaction</th><th>Speed/Quality</th><th>Used for</th></tr>
+<tr><td>Dry oxidation</td><td>Si + O₂ → SiO₂</td><td>Slower, higher quality</td><td>Gate oxide</td></tr>
+<tr><td>Wet oxidation</td><td>Si + 2H₂O → SiO₂ + 2H₂</td><td>Faster, lower quality</td><td>Field oxide</td></tr>
+</table>
+<p>46% of the grown oxide extends into the original silicon surface; 54% grows above it.</p>
+
+<div class="formula">
+Deal-Grove Model:
+  Linear regime (thin oxide):     x_ox = (B/A) × t
+  Parabolic regime (thick oxide): x_ox² = B × t
+
+  B/A = linear rate constant (surface-reaction limited, dominates at short times)
+  B   = parabolic rate constant (diffusion limited, dominates at long times)
+</div>
+
+<h3>Growth rate depends on</h3>
+<ul class="checklist">
+<li>Temperature — higher T grows faster (Arrhenius/exponential)</li>
+<li>Pressure — higher P grows faster (high-pressure oxidation, HIOX)</li>
+<li>Orientation — (111) fastest, (110) medium, (100) slowest</li>
+<li>Dopant type — n+ substrate grows faster than p+ under wet oxidation</li>
+<li>Chlorine — HCl addition improves oxide quality, reduces interface states</li>
+</ul>
+
+<h3>LOCOS vs. STI (isolation)</h3>
+<p><strong>LOCOS</strong> (Local Oxidation of Silicon): nitride mask, suffers from the "bird's beak" encroachment problem. <strong>STI</strong> (Shallow Trench Isolation): etch a trench, fill with oxide, planarize with CMP — no bird's beak, dominant in every sub-0.35μm process, including everything you'll design today.</p>
+
+<hr>
+
+<h2>5.3 — Photolithography <em class="tag badge-nptel">NPTEL Core</em></h2>
+
+<div class="figure">
+<svg viewBox="0 0 620 200" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:11px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:9px;fill:var(--muted);}</style>
+  <text x="310" y="18" class="lbl" text-anchor="middle" font-weight="700" fill="var(--accent)" font-size="13">Photolithography Flow</text>
+  <g font-size="10">
+  <rect x="10" y="40" width="80" height="30" fill="var(--panel2)" stroke="var(--accent)"/><text x="50" y="59" class="lbl-m" text-anchor="middle">Clean +HMDS</text>
+  <rect x="100" y="40" width="80" height="30" fill="var(--panel2)" stroke="var(--accent)"/><text x="140" y="59" class="lbl-m" text-anchor="middle">Spin-coat resist</text>
+  <rect x="190" y="40" width="80" height="30" fill="var(--panel2)" stroke="var(--accent)"/><text x="230" y="59" class="lbl-m" text-anchor="middle">Soft bake</text>
+  <rect x="280" y="40" width="80" height="30" fill="var(--panel2)" stroke="var(--accent2)"/><text x="320" y="59" class="lbl-m" text-anchor="middle">Exposure</text>
+  <rect x="370" y="40" width="80" height="30" fill="var(--panel2)" stroke="var(--accent)"/><text x="410" y="59" class="lbl-m" text-anchor="middle">PEB</text>
+  <rect x="460" y="40" width="80" height="30" fill="var(--panel2)" stroke="var(--accent)"/><text x="500" y="59" class="lbl-m" text-anchor="middle">Develop</text>
+  <rect x="10" y="90" width="80" height="30" fill="var(--panel2)" stroke="var(--accent)"/><text x="50" y="109" class="lbl-m" text-anchor="middle">Hard bake</text>
+  <rect x="100" y="90" width="80" height="30" fill="var(--panel2)" stroke="var(--nmos)"/><text x="140" y="109" class="lbl-m" text-anchor="middle">Etch/Implant</text>
+  <rect x="190" y="90" width="80" height="30" fill="var(--panel2)" stroke="var(--accent)"/><text x="230" y="109" class="lbl-m" text-anchor="middle">Strip resist</text>
+  </g>
+  <path d="M 90 55 H100 M180 55H190 M270 55H280 M360 55H370 M450 55H460 M540 55 Q560 55 560 75 Q560 95 90 95 M90 105H100 M180 105H190" fill="none" stroke="var(--muted)" marker-end="url(#a6)"/>
+  <defs><marker id="a6" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6 z" fill="var(--muted)"/></marker></defs>
+
+  <text x="310" y="150" class="lbl-m" text-anchor="middle">Positive resist: exposed area dissolves (mask = dark pattern kept)</text>
+  <text x="310" y="165" class="lbl-m" text-anchor="middle">Negative resist: exposed area hardens (mask = clear pattern kept)</text>
+  <text x="310" y="185" class="lbl-m" text-anchor="middle">Positive resist is standard in IC fab — better resolution</text>
+</svg>
+<div class="caption"><b>Fig 5.2 —</b> Photolithography patterns each layer: clean → coat resist → bake → expose through a mask → develop → etch or implant → strip. This full cycle repeats dozens of times per chip, once per masked layer.</div>
+</div>
+
+<div class="formula">
+Resolution:  R = k₁ · λ / NA
+Depth of Focus: DOF = k₂ · λ / NA²
+  (λ = wavelength, NA = numerical aperture, k₁ ≈ 0.25 minimum with all RET tricks)
+</div>
+
+<h3>Wavelength evolution (know this progression)</h3>
+<table>
+<tr><th>Source</th><th>Wavelength</th><th>Node era</th></tr>
+<tr><td>g-line</td><td>436 nm</td><td>1980s</td></tr>
+<tr><td>i-line</td><td>365 nm</td><td>1990s</td></tr>
+<tr><td>KrF</td><td>248 nm</td><td>0.25μm–0.13μm</td></tr>
+<tr><td>ArF</td><td>193 nm</td><td>90nm–45nm</td></tr>
+<tr><td>ArF immersion</td><td>193nm/water, NA&gt;1</td><td>45nm–22nm</td></tr>
+<tr><td><strong>EUV</strong></td><td><strong>13.5 nm</strong></td><td>7nm–3nm (current leading edge)</td></tr>
+</table>
+
+<p><strong>Resolution Enhancement Techniques (RET):</strong> Optical Proximity Correction (OPC), Phase Shift Masks (PSM), Off-Axis Illumination, sub-resolution assist features, and multiple patterning (LELE, SADP, SAQP) for sub-7nm nodes. Shallow depth of focus at high NA is exactly why wafer flatness / CMP is so critical.</p>
+
+<hr>
+
+<h2>5.4 — Doping: Diffusion & Ion Implantation <em class="tag badge-nptel">NPTEL Core</em></h2>
+
+<div class="formula">
+Fick's first law:  J = −D·(∂C/∂x)
+Fick's second law: ∂C/∂t = D·(∂²C/∂x²)
+
+Gaussian profile (limited source): C(x,t) = (Q/√(πDt))·exp(−x²/4Dt)
+Erfc profile (constant source):    C(x,t) = Cs·erfc(x / 2√(Dt))
+</div>
+<p>Junction depth x<sub>j</sub> is where C(x<sub>j</sub>) equals the background doping. The Dt product controls the profile shape — this is a standard NPTEL numerical.</p>
+
+<h3>Ion implantation</h3>
+<ul class="checklist">
+<li>Ions accelerated (10 keV – 5 MeV) and shot into the silicon</li>
+<li>Range Rp = average implant depth (Gaussian distribution); ΔRp = straggle (std. deviation)</li>
+<li>Crystal damage (amorphization) requires annealing (700–1000°C) to repair and activate dopants</li>
+<li>RTA (Rapid Thermal Anneal): spikes to ~1050°C for &lt;30 seconds — minimizes further diffusion</li>
+<li>Advantage over thermal diffusion: precise dose control, lower temperature, maskable with photoresist</li>
+</ul>
+
+<hr>
+
+<h2>5.5 — Thin Film Deposition</h2>
+<table>
+<tr><th>Method</th><th>Type</th><th>Typical use</th></tr>
+<tr><td>LPCVD</td><td>CVD, 0.1–1 torr</td><td>Poly-Si gate, SiO₂, Si₃N₄ — conformal, uniform</td></tr>
+<tr><td>PECVD</td><td>CVD, plasma-assisted</td><td>Lower-temperature back-end dielectrics</td></tr>
+<tr><td>ALD</td><td>Atomic Layer Deposition</td><td>High-k gate dielectric (HfO₂) — monolayer control</td></tr>
+<tr><td>Sputtering</td><td>PVD</td><td>Metal layers (Al, Cu seed, TaN/TiN barriers)</td></tr>
+<tr><td>Evaporation</td><td>PVD</td><td>Line-of-sight metal deposition</td></tr>
+<tr><td>Epitaxy</td><td>CVD, single-crystal</td><td>SiGe strained layers (pMOS mobility boost in FinFET)</td></tr>
+</table>
+
+<hr>
+
+<h2>5.6 — Etching</h2>
+<table>
+<tr><th>Type</th><th>Behavior</th><th>Example</th></tr>
+<tr><td>Wet etch</td><td>Isotropic (etches all directions equally)</td><td>HF for SiO₂; KOH for Si (anisotropic exception)</td></tr>
+<tr><td>RIE (Reactive Ion Etch)</td><td>Anisotropic — chemical + physical ion bombardment</td><td>Standard for gate/interconnect patterning</td></tr>
+<tr><td>DRIE (Bosch process)</td><td>Deep anisotropic</td><td>TSV, MEMS structures</td></tr>
+</table>
+<p>Selectivity = ratio of etch rates between target material, mask, and substrate (e.g. SiO₂:Si ~20:1 for CHF₃ plasma). Micro-loading: local etch rate depends on nearby pattern density.</p>
+
+<hr>
+
+<h2>5.7 — CMOS Fabrication Process Flow <em class="tag badge-nptel">NPTEL Core — draw these from memory</em></h2>
+
+<div class="figure">
+<svg viewBox="0 0 620 460" xmlns="http://www.w3.org/2000/svg">
+<style>.lbl{font-family:Segoe UI,sans-serif;font-size:11px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:9px;fill:var(--muted);}</style>
+<text x="310" y="18" class="lbl" text-anchor="middle" font-weight="700" fill="var(--accent)" font-size="14">n-Well Twin-Well CMOS Process — Key Stages</text>
+
+<!-- Stage 1: substrate + wells -->
+<text x="20" y="45" class="lbl-m" font-weight="700">1. n-well formation</text>
+<rect x="20" y="50" width="180" height="40" fill="#3a4568" stroke="var(--border)"/>
+<rect x="30" y="60" width="70" height="25" fill="var(--nmos)" opacity="0.4"/>
+<text x="65" y="77" class="lbl-m" text-anchor="middle" font-size="8">n-well (pMOS)</text>
+<text x="150" y="77" class="lbl-m" text-anchor="middle" font-size="8">p-substrate</text>
+
+<!-- Stage 2: STI -->
+<text x="220" y="45" class="lbl-m" font-weight="700">2. STI isolation</text>
+<rect x="220" y="50" width="180" height="40" fill="#3a4568" stroke="var(--border)"/>
+<rect x="230" y="60" width="70" height="25" fill="var(--nmos)" opacity="0.4"/>
+<rect x="295" y="55" width="14" height="30" fill="#cfd8ea"/>
+<rect x="345" y="55" width="14" height="30" fill="#cfd8ea"/>
+<text x="302" y="95" class="lbl-m" text-anchor="middle" font-size="8">STI trench</text>
+
+<!-- Stage 3: gate stack -->
+<text x="420" y="45" class="lbl-m" font-weight="700">3. Gate stack (oxide+poly)</text>
+<rect x="420" y="50" width="180" height="40" fill="#3a4568" stroke="var(--border)"/>
+<rect x="430" y="60" width="70" height="25" fill="var(--nmos)" opacity="0.4"/>
+<rect x="440" y="42" width="8" height="8" fill="#cfd8ea"/>
+<rect x="440" y="30" width="8" height="12" fill="#6b7594"/>
+<rect x="540" y="42" width="8" height="8" fill="#cfd8ea"/>
+<rect x="540" y="30" width="8" height="12" fill="#6b7594"/>
+<text x="510" y="95" class="lbl-m" text-anchor="middle" font-size="8">poly gates over gate oxide</text>
+
+<!-- Stage 4: S/D + spacer -->
+<text x="20" y="140" class="lbl-m" font-weight="700">4. S/D extension + spacers</text>
+<rect x="20" y="145" width="180" height="40" fill="#3a4568" stroke="var(--border)"/>
+<rect x="30" y="155" width="70" height="25" fill="var(--nmos)" opacity="0.4"/>
+<rect x="45" y="150" width="6" height="10" fill="var(--accent3)"/>
+<rect x="75" y="150" width="6" height="10" fill="var(--accent3)"/>
+<rect x="40" y="125" width="8" height="20" fill="#8a93ad"/>
+<rect x="80" y="125" width="8" height="20" fill="#8a93ad"/>
+<text x="65" y="195" class="lbl-m" text-anchor="middle" font-size="8">lightly-doped extension + nitride spacer</text>
+
+<!-- Stage 5: S/D implant + silicide -->
+<text x="220" y="140" class="lbl-m" font-weight="700">5. S/D implant + SALICIDE</text>
+<rect x="220" y="145" width="180" height="40" fill="#3a4568" stroke="var(--border)"/>
+<rect x="230" y="155" width="70" height="25" fill="var(--nmos)" opacity="0.4"/>
+<rect x="240" y="150" width="14" height="15" fill="var(--nmos)"/>
+<rect x="276" y="150" width="14" height="15" fill="var(--nmos)"/>
+<rect x="238" y="147" width="18" height="4" fill="var(--accent2)"/>
+<rect x="274" y="147" width="18" height="4" fill="var(--accent2)"/>
+<text x="302" y="195" class="lbl-m" text-anchor="middle" font-size="8">heavy n+/p+ S/D + NiSi silicide cap</text>
+
+<!-- Stage 6: contacts + M1 -->
+<text x="420" y="140" class="lbl-m" font-weight="700">6. Contacts + M1</text>
+<rect x="420" y="145" width="180" height="40" fill="#3a4568" stroke="var(--border)"/>
+<rect x="430" y="155" width="70" height="25" fill="var(--nmos)" opacity="0.4"/>
+<rect x="440" y="130" width="8" height="20" fill="#b8c2dd"/>
+<rect x="480" y="130" width="8" height="20" fill="#b8c2dd"/>
+<rect x="435" y="122" width="18" height="8" fill="var(--accent)"/>
+<rect x="475" y="122" width="18" height="8" fill="var(--accent)"/>
+<text x="510" y="195" class="lbl-m" text-anchor="middle" font-size="8">W plugs + first Cu metal (M1)</text>
+
+<!-- BEOL stack -->
+<text x="20" y="235" class="lbl-m" font-weight="700">7. BEOL — dual-damascene Cu interconnect stack (M1–M9+)</text>
+<rect x="20" y="245" width="560" height="120" fill="#3a4568" stroke="var(--border)"/>
+<g stroke="var(--accent)" stroke-width="4">
+  <line x1="60" y1="350" x2="60" y2="260"/>
+  <line x1="140" y1="350" x2="140" y2="290"/>
+  <line x1="220" y1="350" x2="220" y2="270"/>
+  <line x1="320" y1="350" x2="320" y2="300"/>
+  <line x1="420" y1="350" x2="420" y2="275"/>
+  <line x1="520" y1="350" x2="520" y2="260"/>
+</g>
+<g stroke="var(--accent)" stroke-width="3" opacity="0.7">
+  <line x1="60" y1="260" x2="140" y2="260"/>
+  <line x1="140" y1="290" x2="220" y2="290"/>
+  <line x1="220" y1="270" x2="320" y2="270"/>
+  <line x1="320" y1="300" x2="420" y2="300"/>
+  <line x1="420" y1="275" x2="520" y2="275"/>
+</g>
+<text x="300" y="380" class="lbl-m" text-anchor="middle">Low-k dielectric between Cu lines; via + trench etched together, filled by electroplating, CMP planarized</text>
+
+<text x="300" y="410" class="lbl-m" text-anchor="middle" font-weight="700" fill="var(--accent2)">8. Passivation → dice → wire bond / flip-chip → package</text>
+</svg>
+<div class="caption"><b>Fig 5.3 —</b> Simplified cross-section progression through the twin-well CMOS flow: well formation → STI isolation → gate stack → source/drain extension & spacers → heavy S/D implant + silicide → contacts/M1 → full BEOL metal stack → packaging. Being able to redraw this from memory is one of the most reliable ways to pass NPTEL fabrication questions.</div>
+</div>
+
+<h3>Full step list (memorize the order)</h3>
+<ol>
+<li>Starting material: p-type Si wafer</li>
+<li>n-well formation: phosphorus implant + anneal (for pMOS)</li>
+<li>STI formation: nitride deposition → trench etch → oxide fill → CMP</li>
+<li>Gate stack: dry-oxidize gate oxide (~1.5nm at 45nm node) → LPCVD poly-Si → pattern + etch</li>
+<li>Source/Drain extension (SDE): shallow, lightly doped, low-energy implant</li>
+<li>Spacer formation: SiO₂/Si₃N₄ CVD → anisotropic etch → sidewall spacers</li>
+<li>Source/Drain implant: heavy n+/p+ doping → RTA anneal</li>
+<li>Silicidation (SALICIDE): Ni deposition → anneal forms NiSi → strip unreacted Ni</li>
+<li>Contact Etch Stop Layer (CESL): strained nitride (tensile/compressive)</li>
+<li>Pre-Metal Dielectric (PMD): CVD SiO₂ → CMP planarize</li>
+<li>Contacts: etch holes → TiN barrier → W plug (CVD)</li>
+<li>BEOL metal (M1–M9+): dual-damascene — etch low-k dielectric → Cu electroplate → CMP; repeat per layer</li>
+<li>Passivation: SiO₂/Si₃N₄ over top metal, open bond pads</li>
+<li>Backend: dicing → wire bonding or flip-chip bumping → package</li>
+</ol>
+
+<div class="callout tip"><strong>Practice:</strong>
+<ul class="checklist">
+<li>Draw the complete process cross-section from memory (all 10+ stages)</li>
+<li>Watch a fab process walkthrough video (search "How CPUs are Made")</li>
+<li>Solve NPTEL past-year questions on fabrication (2015–2023 papers)</li>
+</ul>
+</div>
+
+<h2>Resources for Phase 5</h2>
+<ul class="resource-list">
+<li><strong>Neamen — Semiconductor Physics and Devices</strong> Ch. 11 (fab process)</li>
+<li>Jaeger — Introduction to Microelectronic Fabrication</li>
+<li>Quirk & Serda — Semiconductor Manufacturing Technology</li>
+<li>NPTEL — "Semiconductor Fabrication", IIT Madras (full course)</li>
+<li>ASML's public explainer videos on EUV lithography</li>
+</ul>
+
+<div class="footer-nav">
+  <a href="vlsi_04_physical_design.html">← Phase 4: Physical Design</a>
+  <a href="vlsi_06_dft_lowpower.html">Phase 6: DFT & Low Power →</a>
+</div>
+</div>
+</body>
+</html>

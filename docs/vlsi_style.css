@@ -1,0 +1,210 @@
+/* ===== VLSI Course — Shared Stylesheet ===== */
+:root{
+  --bg:#0b1220;
+  --panel:#121b30;
+  --panel2:#16213d;
+  --text:#e8edf9;
+  --muted:#9fb0d1;
+  --accent:#4fd1c5;
+  --accent2:#f6ad55;
+  --accent3:#fc8181;
+  --border:#25324f;
+  --code-bg:#0d1526;
+  --nmos:#4fd1c5;
+  --pmos:#f6ad55;
+  --wire:#e8edf9;
+  --good:#68d391;
+  --bad:#fc8181;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:linear-gradient(180deg,#0b1220,#0e1730 40%,#0b1220);
+  color:var(--text);
+  line-height:1.65;
+}
+
+.wrap{
+  max-width:960px;
+  margin:0 auto;
+  padding:28px 20px 80px;
+}
+
+/* Top nav bar */
+.topnav{
+  position:sticky; top:0; z-index:50;
+  background:rgba(11,18,32,0.92);
+  backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--border);
+  padding:10px 20px;
+  display:flex; gap:14px; flex-wrap:wrap; align-items:center;
+  font-size:0.85rem;
+}
+.topnav a{color:var(--muted); text-decoration:none; padding:4px 8px; border-radius:6px;}
+.topnav a:hover{color:var(--accent); background:var(--panel2);}
+.topnav .brand{color:var(--accent); font-weight:700; margin-right:10px;}
+.topnav .current{color:var(--bg); background:var(--accent); font-weight:600;}
+
+h1{
+  font-size:1.9rem;
+  color:#fff;
+  border-bottom:3px solid var(--accent);
+  padding-bottom:10px;
+  margin-top:0;
+}
+h1 .sub{display:block; font-size:1rem; color:var(--muted); font-weight:400; margin-top:6px;}
+
+h2{
+  font-size:1.35rem;
+  color:var(--accent);
+  margin-top:2.6em;
+  border-left:4px solid var(--accent);
+  padding-left:12px;
+}
+h3{
+  font-size:1.08rem;
+  color:var(--accent2);
+  margin-top:1.8em;
+}
+h4{ color:#fff; margin-bottom:0.3em; }
+
+p{color:var(--text);}
+strong{color:#fff;}
+em.tag{
+  display:inline-block;
+  background:var(--panel2);
+  color:var(--accent);
+  border:1px solid var(--border);
+  border-radius:5px;
+  padding:1px 8px;
+  font-style:normal;
+  font-size:0.75rem;
+  margin-left:6px;
+}
+.badge-nptel{ background:#2a1f0f; color:var(--accent2); border-color:#54401a; }
+.badge-industry{ background:#0f2a24; color:var(--accent); border-color:#1a5445; }
+
+.callout{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-left:4px solid var(--accent);
+  border-radius:8px;
+  padding:14px 18px;
+  margin:16px 0;
+}
+.callout.warn{ border-left-color:var(--accent3); }
+.callout.tip{ border-left-color:var(--good); }
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin:14px 0;
+  font-size:0.92rem;
+}
+th,td{
+  border:1px solid var(--border);
+  padding:8px 10px;
+  text-align:left;
+}
+th{ background:var(--panel2); color:var(--accent); }
+tr:nth-child(even) td{ background:rgba(255,255,255,0.02); }
+
+code{
+  background:var(--code-bg);
+  color:var(--accent);
+  padding:2px 5px;
+  border-radius:4px;
+  font-family:"Cascadia Code",Consolas,monospace;
+  font-size:0.9em;
+}
+pre{
+  background:var(--code-bg);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:14px 16px;
+  overflow-x:auto;
+  font-size:0.87rem;
+}
+pre code{ background:none; padding:0; color:#d6e6ff; }
+
+.figure{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:16px;
+  margin:20px 0;
+  text-align:center;
+}
+.figure svg{ max-width:100%; height:auto; }
+.figure .caption{
+  color:var(--muted);
+  font-size:0.85rem;
+  margin-top:10px;
+  text-align:left;
+}
+.figure .caption b{ color:var(--text); }
+
+.checklist{ list-style:none; padding-left:0; }
+.checklist li{
+  padding:6px 0 6px 30px;
+  position:relative;
+  color:var(--text);
+}
+.checklist li::before{
+  content:"☐";
+  position:absolute; left:0; top:6px;
+  color:var(--accent);
+  font-size:1.1em;
+}
+
+.resource-list{ padding-left:20px; }
+.resource-list li{ margin-bottom:6px; }
+
+.phase-links{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin:24px 0;
+}
+.phase-card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:16px 18px;
+  text-decoration:none;
+  display:block;
+  transition:border-color .15s, transform .15s;
+}
+.phase-card:hover{ border-color:var(--accent); transform:translateY(-2px); }
+.phase-card .num{ color:var(--accent); font-size:0.8rem; font-weight:700; letter-spacing:1px;}
+.phase-card h3{ margin:4px 0 6px 0; color:#fff; }
+.phase-card p{ color:var(--muted); font-size:0.87rem; margin:0; }
+
+.footer-nav{
+  display:flex; justify-content:space-between;
+  margin-top:60px; padding-top:20px;
+  border-top:1px solid var(--border);
+}
+.footer-nav a{
+  color:var(--accent); text-decoration:none;
+  font-weight:600; font-size:0.95rem;
+}
+.footer-nav a:hover{ text-decoration:underline; }
+
+hr{ border:none; border-top:1px solid var(--border); margin:36px 0; }
+
+.formula{
+  background:var(--code-bg);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:12px 16px;
+  font-family:"Cascadia Code",Consolas,monospace;
+  color:var(--accent);
+  margin:10px 0;
+  overflow-x:auto;
+}
+
+::selection{ background:var(--accent); color:#0b1220; }

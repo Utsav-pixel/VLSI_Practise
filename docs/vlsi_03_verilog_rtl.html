@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Phase 3 — Verilog & RTL Design | VLSI Course</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="vlsi_style.css">
+</head>
+<body>
+<div class="topnav">
+  <span class="brand">⚡ VLSI Course</span>
+  <a href="index.html">Home</a>
+  <a href="vlsi_01_electronics_cmos.html">1. CMOS Refresh</a>
+  <a href="vlsi_02_memory_arithmetic.html">2. Memory & Arithmetic</a>
+  <a href="vlsi_03_verilog_rtl.html" class="current">3. Verilog & RTL</a>
+  <a href="vlsi_04_physical_design.html">4. Physical Design</a>
+  <a href="vlsi_05_fabrication.html">5. Fabrication</a>
+  <a href="vlsi_06_dft_lowpower.html">6. DFT & Low Power</a>
+  <a href="vlsi_07_08_projects_nptel.html">7&8. Projects & NPTEL</a>
+</div>
+
+<div class="wrap">
+<h1>Phase 3 — RTL Design & Verification (Verilog / SystemVerilog)
+  <span class="sub">The single highest-priority skill for landing an RTL design or verification job. Duration: 8–10 weeks.</span>
+</h1>
+
+<div class="callout"><strong>Why Verilog, not VHDL:</strong> Verilog dominates in India and Asia-Pacific chip design companies (TI, Qualcomm, Intel, Samsung). VHDL is more common in European defense/aerospace. SystemVerilog = Verilog + verification extensions — learn both, starting with plain Verilog.</div>
+
+<h2>3.1 — Verilog HDL Fundamentals</h2>
+
+<h3>Module structure</h3>
+<pre><code>module module_name (
+    input  wire clk,
+    input  wire rst_n,
+    input  wire [7:0] data_in,
+    output reg  [7:0] data_out
+);
+    wire [7:0] temp;
+
+    // Combinational logic
+    assign temp = data_in & 8'hFF;
+
+    // Sequential logic
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            data_out &lt;= 8'h00;
+        else
+            data_out &lt;= temp;
+    end
+endmodule</code></pre>
+
+<h3>Data types</h3>
+<table>
+<tr><th>Type</th><th>Use</th></tr>
+<tr><td><code>wire</code></td><td>Combinational, continuous assignment (<code>assign</code>)</td></tr>
+<tr><td><code>reg</code></td><td>Holds value inside procedural blocks — does <em>not</em> necessarily mean a real register!</td></tr>
+<tr><td><code>integer</code>, <code>real</code>, <code>time</code></td><td>Simulation-only, not synthesizable</td></tr>
+<tr><td><code>logic</code> (SystemVerilog)</td><td>Replaces both wire and reg — preferred in modern code</td></tr>
+</table>
+
+<h3>Abstraction levels</h3>
+<div class="figure">
+<svg viewBox="0 0 600 160" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:13px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:11px;fill:var(--muted);}</style>
+  <rect x="20" y="30" width="130" height="60" rx="6" fill="var(--panel2)" stroke="var(--accent)"/>
+  <text x="85" y="55" class="lbl" text-anchor="middle">Behavioral</text>
+  <text x="85" y="75" class="lbl-m" text-anchor="middle">"what", if/case</text>
+
+  <rect x="185" y="30" width="130" height="60" rx="6" fill="var(--panel2)" stroke="var(--accent)"/>
+  <text x="250" y="55" class="lbl" text-anchor="middle">RTL</text>
+  <text x="250" y="75" class="lbl-m" text-anchor="middle">data flow between regs</text>
+
+  <rect x="350" y="30" width="130" height="60" rx="6" fill="var(--panel2)" stroke="var(--accent)"/>
+  <text x="415" y="55" class="lbl" text-anchor="middle">Gate level</text>
+  <text x="415" y="75" class="lbl-m" text-anchor="middle">and/or/nand primitives</text>
+
+  <line x1="150" y1="60" x2="185" y2="60" stroke="var(--accent2)" marker-end="url(#a2)"/>
+  <line x1="315" y1="60" x2="350" y2="60" stroke="var(--accent2)" marker-end="url(#a2)"/>
+  <defs><marker id="a2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="var(--accent2)"/></marker></defs>
+  <text x="300" y="120" class="lbl-m" text-anchor="middle">This is exactly the direction logic synthesis (§3.3) moves your code</text>
+</svg>
+<div class="caption"><b>Fig 3.1 —</b> You write behavioral/RTL code; the synthesis tool automatically maps it down to gate-level netlists using the target standard cell library.</div>
+</div>
+
+<h3>Blocking vs. non-blocking — the rule that matters most</h3>
+<div class="callout warn">
+<strong>Golden rule:</strong> use <code>=</code> (blocking) only in combinational <code>always @(*)</code> blocks. Use <code>&lt;=</code> (non-blocking) only in clocked <code>always @(posedge clk)</code> blocks. Mixing them in the same always block is one of the most common RTL bugs and a guaranteed interview question.
+</div>
+
+<pre><code>// Combinational — blocking, use always @(*)
+always @(*) begin
+    case (sel)
+        2'b00: out = a;
+        2'b01: out = b;
+        default: out = 8'h00;
+    endcase
+end
+
+// Sequential — non-blocking, use always @(posedge clk)
+always @(posedge clk) begin
+    if (en) q &lt;= d;
+end</code></pre>
+
+<h3>Common RTL mistakes</h3>
+<ul class="checklist">
+<li>Incomplete sensitivity list (mostly a pre-SystemVerilog problem — use <code>always @(*)</code>)</li>
+<li>Unintended latches from incomplete case/if-else (always add a <code>default</code>)</li>
+<li>Mixing blocking/non-blocking in the same always block</li>
+<li>Forgetting reset behavior, causing X-propagation issues in simulation</li>
+</ul>
+
+<h3>Worked example: Priority encoder</h3>
+<pre><code>module priority_enc (
+    input  [3:0] in,
+    output reg [1:0] out,
+    output reg valid
+);
+    always @(*) begin
+        valid = 1'b1;
+        casex (in)
+            4'b1xxx: out = 2'd3;
+            4'b01xx: out = 2'd2;
+            4'b001x: out = 2'd1;
+            4'b0001: out = 2'd0;
+            default: begin out = 2'd0; valid = 1'b0; end
+        endcase
+    end
+endmodule</code></pre>
+
+<h3>Worked example: Sequence detector FSM ("1011")</h3>
+<div class="figure">
+<svg viewBox="0 0 560 260" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:13px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:11px;fill:var(--muted);}</style>
+  <circle cx="80" cy="130" r="34" fill="var(--panel2)" stroke="var(--accent)" stroke-width="2"/>
+  <text x="80" y="135" class="lbl" text-anchor="middle">S0</text>
+  <circle cx="220" cy="60" r="34" fill="var(--panel2)" stroke="var(--accent)" stroke-width="2"/>
+  <text x="220" y="65" class="lbl" text-anchor="middle">S1</text>
+  <circle cx="360" cy="130" r="34" fill="var(--panel2)" stroke="var(--accent)" stroke-width="2"/>
+  <text x="360" y="135" class="lbl" text-anchor="middle">S2</text>
+  <circle cx="490" cy="60" r="34" fill="var(--panel2)" stroke="var(--accent2)" stroke-width="2.5"/>
+  <text x="490" y="65" class="lbl" text-anchor="middle">S3</text>
+
+  <!-- transitions -->
+  <path d="M 110 115 Q 165 80 190 68" fill="none" stroke="var(--good)" marker-end="url(#a3)"/>
+  <text x="150" y="80" class="lbl-m" fill="var(--good)">1</text>
+
+  <path d="M 80 96 Q 60 60 55 100" fill="none" stroke="var(--bad)" marker-end="url(#a3)"/>
+  <text x="30" y="90" class="lbl-m" fill="var(--bad)">0</text>
+
+  <path d="M 250 85 Q 310 105 335 120" fill="none" stroke="var(--good)" marker-end="url(#a3)"/>
+  <text x="290" y="95" class="lbl-m" fill="var(--good)">1</text>
+
+  <path d="M 200 90 Q 130 130 112 130" fill="none" stroke="var(--bad)" marker-end="url(#a3)"/>
+  <text x="160" y="150" class="lbl-m" fill="var(--bad)">0</text>
+
+  <path d="M 390 115 Q 445 85 465 70" fill="none" stroke="var(--good)" marker-end="url(#a3)"/>
+  <text x="430" y="80" class="lbl-m" fill="var(--good)">1 (match!)</text>
+
+  <path d="M 340 100 Q 260 60 250 60" fill="none" stroke="var(--bad)" marker-end="url(#a3)"/>
+  <text x="290" y="45" class="lbl-m" fill="var(--bad)">0</text>
+
+  <path d="M 480 92 Q 420 130 394 130" fill="none" stroke="var(--good)" marker-end="url(#a3)"/>
+  <text x="440" y="145" class="lbl-m" fill="var(--good)">1</text>
+
+  <path d="M 500 92 Q 520 120 380 128" fill="none" stroke="var(--bad)" marker-end="url(#a3)"/>
+  <text x="500" y="115" class="lbl-m" fill="var(--bad)">0</text>
+
+  <defs><marker id="a3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="var(--muted)"/></marker></defs>
+  <text x="280" y="230" class="lbl-m" text-anchor="middle">Mealy machine: output "match" asserted on the S3 → S1 transition when din=1</text>
+</svg>
+<div class="caption"><b>Fig 3.2 —</b> State diagram for a "1011" sequence detector. Green edges = din=1, red = din=0. This maps directly onto the <code>case(state)</code> structure in the code below.</div>
+</div>
+
+<pre><code>module seq_det (
+    input  clk, rst, din,
+    output reg match
+);
+    typedef enum logic [1:0] {S0, S1, S2, S3} state_t;
+    state_t state, next;
+
+    // State register
+    always @(posedge clk or posedge rst)
+        state &lt;= rst ? S0 : next;
+
+    // Next state + output logic
+    always @(*) begin
+        next  = S0;
+        match = 0;
+        case (state)
+            S0: next = din ? S1 : S0;
+            S1: next = din ? S1 : S2;
+            S2: next = din ? S3 : S0;
+            S3: begin
+                    match = din ? 1 : 0;
+                    next  = din ? S1 : S2;
+                end
+        endcase
+    end
+endmodule</code></pre>
+
+<div class="callout tip"><strong>Lab:</strong>
+<ul class="checklist">
+<li>Complete <strong>every problem on HDLBits.com</strong> — this is the single best free Verilog practice resource, budget 3–4 weeks</li>
+<li>Design & simulate: 4-bit counter, 8-bit register file, 4:1 MUX</li>
+<li>Design & verify: UART transmitter (serial protocol)</li>
+<li>Design & verify: SPI master module</li>
+<li>Design a 3-stage pipeline for arithmetic operations</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>3.2 — Testbench Writing & Functional Verification</h2>
+
+<pre><code>`timescale 1ns/1ps
+
+module tb_adder;
+    reg  [7:0] a, b;
+    reg        cin;
+    wire [7:0] sum;
+    wire       cout;
+
+    adder_8bit dut (
+        .a(a), .b(b), .cin(cin),
+        .sum(sum), .cout(cout)
+    );
+
+    initial begin
+        $dumpfile("adder.vcd");
+        $dumpvars(0, tb_adder);
+
+        a = 8'h00; b = 8'h00; cin = 0; #10;
+        a = 8'hFF; b = 8'h01; cin = 0; #10;
+        a = 8'h55; b = 8'hAA; cin = 1; #10;
+
+        repeat(100) begin
+            a = $random; b = $random; cin = $random;
+            #10;
+            if ({cout,sum} !== a + b + cin)
+                $error("MISMATCH: a=%0h b=%0h cin=%0b sum=%0h cout=%0b",
+                        a, b, cin, sum, cout);
+        end
+
+        $display("Test complete");
+        $finish;
+    end
+endmodule</code></pre>
+
+<h3>Verification concepts</h3>
+<ul class="checklist">
+<li>Directed testing vs. random testing vs. constrained-random testing</li>
+<li>Code coverage: line, branch, condition, toggle, FSM coverage</li>
+<li>Functional coverage: cover groups, cover points (SystemVerilog)</li>
+<li>Assertion-based verification (SVA): <code>assert property</code>, <code>assume property</code></li>
+</ul>
+
+<h3>SystemVerilog for verification (intro-level)</h3>
+<table>
+<tr><th>Construct</th><th>Purpose</th></tr>
+<tr><td><code>class</code></td><td>Object-oriented testbench components</td></tr>
+<tr><td><code>rand</code>/constraints</td><td>Constrained random stimulus generation</td></tr>
+<tr><td><code>interface</code></td><td>Bundle related signals cleanly</td></tr>
+<tr><td><code>program</code> block</td><td>Testbench isolation from DUT timing</td></tr>
+<tr><td>UVM</td><td>Universal Verification Methodology — awareness only at this stage, deep dive later</td></tr>
+</table>
+
+<h3>Tools</h3>
+<table>
+<tr><th>Tool</th><th>Cost</th><th>Notes</th></tr>
+<tr><td>iverilog</td><td>Free</td><td>Open-source Verilog simulator</td></tr>
+<tr><td>GTKWave</td><td>Free</td><td>Waveform viewer</td></tr>
+<tr><td>Verilator</td><td>Free</td><td>Very fast cycle-accurate simulation</td></tr>
+<tr><td>ModelSim</td><td>Free (student edition)</td><td>Industry-familiar interface</td></tr>
+<tr><td>Cadence Xcelium / Synopsys VCS</td><td>Paid</td><td>What you'll use on the job</td></tr>
+</table>
+
+<div class="callout tip"><strong>Lab:</strong>
+<ul class="checklist">
+<li>Write a comprehensive testbench for your UART module, target 100% branch coverage</li>
+<li>Add SystemVerilog assertions to check protocol handshaking</li>
+<li>Use constrained random to generate valid SPI transactions</li>
+<li>Measure and improve code coverage with iverilog + lcov</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>3.3 — RTL to Gates: Logic Synthesis <em class="tag badge-industry">Industry Core</em></h2>
+
+<div class="figure">
+<svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:13px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:11px;fill:var(--muted);}</style>
+  <rect x="140" y="20" width="220" height="45" rx="6" fill="var(--panel2)" stroke="var(--accent)"/>
+  <text x="250" y="47" class="lbl" text-anchor="middle">RTL (Verilog)</text>
+
+  <line x1="250" y1="65" x2="250" y2="90" stroke="var(--muted)" marker-end="url(#a4)"/>
+  <text x="330" y="80" class="lbl-m">Elaboration</text>
+
+  <rect x="120" y="90" width="260" height="45" rx="6" fill="var(--panel2)" stroke="var(--accent)"/>
+  <text x="250" y="117" class="lbl" text-anchor="middle">Generic Boolean Network</text>
+
+  <line x1="250" y1="135" x2="250" y2="160" stroke="var(--muted)" marker-end="url(#a4)"/>
+  <text x="360" y="150" class="lbl-m">Technology Mapping</text>
+
+  <rect x="110" y="160" width="280" height="45" rx="6" fill="var(--panel2)" stroke="var(--accent2)"/>
+  <text x="250" y="187" class="lbl" text-anchor="middle">Gate-level Netlist (std cell library)</text>
+
+  <line x1="250" y1="205" x2="250" y2="230" stroke="var(--muted)" marker-end="url(#a4)"/>
+  <text x="330" y="220" class="lbl-m">Optimization</text>
+
+  <rect x="90" y="230" width="320" height="45" rx="6" fill="var(--panel2)" stroke="var(--good)"/>
+  <text x="250" y="257" class="lbl" text-anchor="middle">Optimized Netlist (timing/area/power)</text>
+
+  <defs><marker id="a4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="var(--muted)"/></marker></defs>
+</svg>
+<div class="caption"><b>Fig 3.3 —</b> The synthesis flow. Each stage matters: elaboration resolves parameters/generates, technology mapping picks real cells from the target library, optimization then trades off area/timing/power against your constraints (SDC).</div>
+</div>
+
+<h3>SDC constraints (Synopsys Design Constraints)</h3>
+<pre><code># Clock definition
+create_clock -name clk -period 5.0 [get_ports clk]
+
+# Input/Output delays
+set_input_delay  1.0 -clock clk [all_inputs]
+set_output_delay 1.0 -clock clk [all_outputs]
+
+# Drive strength and load
+set_driving_cell -lib_cell INVX1 [all_inputs]
+set_load 0.1 [all_outputs]
+
+# False paths and multicycle paths
+set_false_path -from [get_ports rst_n]
+set_multicycle_path 2 -from [get_cells slow_block/*]</code></pre>
+
+<h3>Reading a synthesis report</h3>
+<ul class="checklist">
+<li><strong>Critical path</strong> — the longest combinational path in the design</li>
+<li><strong>Slack</strong> = Required Arrival Time − Actual Arrival Time. Negative slack = timing violation (tracked as WNS/TNS)</li>
+<li><strong>Area report</strong> — cell count and total area in μm²</li>
+</ul>
+
+<h3>Open-source tool: Yosys</h3>
+<pre><code>yosys -p "
+  read_verilog design.v
+  synth -top top_module
+  write_verilog -noattr synth_out.v
+"</code></pre>
+
+<div class="callout tip"><strong>Lab:</strong>
+<ul class="checklist">
+<li>Synthesize your 8-bit adder and UART using Yosys</li>
+<li>Analyze the timing report, identify the critical path</li>
+<li>Change the clock constraint and observe how synthesis re-optimizes</li>
+<li>Compare area under area-optimized vs. timing-optimized synthesis</li>
+</ul>
+</div>
+
+<h2>Resources for Phase 3</h2>
+<ul class="resource-list">
+<li><strong>Palnitkar — Verilog HDL</strong> (best beginner book by far)</li>
+<li>Ciletti — Advanced Digital Design with the Verilog HDL</li>
+<li><strong>Sutherland, Davidmann — SystemVerilog for Design</strong> (industry-standard reference)</li>
+<li><strong>HDLBits.com</strong> — do every problem, no exceptions</li>
+<li>NPTEL — "Hardware Modeling using Verilog", IIT Kharagpur</li>
+<li>Devadas & Newton — Algorithms for Hardware Design Synthesis</li>
+<li>Tools: Yosys + OpenSTA (free, industry-quality)</li>
+</ul>
+
+<div class="footer-nav">
+  <a href="vlsi_02_memory_arithmetic.html">← Phase 2: Memory & Arithmetic</a>
+  <a href="vlsi_04_physical_design.html">Phase 4: Physical Design & STA →</a>
+</div>
+</div>
+</body>
+</html>

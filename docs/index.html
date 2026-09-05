@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VLSI & Chip Design — Complete Course</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="vlsi_style.css">
+</head>
+<body>
+<div class="topnav">
+  <span class="brand">⚡ VLSI Course</span>
+  <a href="index.html" class="current">Home</a>
+  <a href="vlsi_01_electronics_cmos.html">1. CMOS Refresh</a>
+  <a href="vlsi_02_memory_arithmetic.html">2. Memory & Arithmetic</a>
+  <a href="vlsi_03_verilog_rtl.html">3. Verilog & RTL</a>
+  <a href="vlsi_04_physical_design.html">4. Physical Design</a>
+  <a href="vlsi_05_fabrication.html">5. Fabrication</a>
+  <a href="vlsi_06_dft_lowpower.html">6. DFT & Low Power</a>
+  <a href="vlsi_07_08_projects_nptel.html">7&8. Projects & NPTEL</a>
+</div>
+
+<div class="wrap">
+  <h1>VLSI & Chip Design — Complete Self-Study Course
+    <span class="sub">From EC background → Job-ready chip design & manufacturing expert, with NPTEL certification</span>
+  </h1>
+
+  <div class="callout tip">
+    <strong>How this course is structured:</strong> Split across 7 linked HTML files (one per phase group) so each stays readable and loads fast. Every file has diagrams (SVG, rendered inline — no external images needed), formulas, code, lab tasks, and NPTEL-style questions. Use the top nav bar on every page to jump between phases. Open <b>index.html</b> any time to get back here.
+  </div>
+
+  <h2>Your Starting Point</h2>
+  <p>4+ years in EC → IT → switching back to VLSI. Strong in logic gates & digital electronics — weak on transistor-level CMOS/MOSFET physics. This course refreshes fundamentals first (Phase 1), then builds up through RTL design, physical design, fabrication, advanced topics, real projects, and finally an NPTEL certification + job-prep sprint.</p>
+
+  <h2>Course Map</h2>
+  <div class="phase-links">
+
+    <a class="phase-card" href="vlsi_01_electronics_cmos.html">
+      <div class="num">PHASE 1 · 6–8 weeks</div>
+      <h3>Electronics & CMOS Refresh</h3>
+      <p>Semiconductor physics, pn junction, MOSFET regions & short-channel effects, CMOS inverter, CMOS logic gate design. Your priority start.</p>
+    </a>
+
+    <a class="phase-card" href="vlsi_02_memory_arithmetic.html">
+      <div class="num">PHASE 2 · 6–8 weeks</div>
+      <h3>Memory, Sequential & Arithmetic Circuits</h3>
+      <p>SRAM/DRAM cells, latches & flip-flops, adders & multipliers, interconnect and signal integrity.</p>
+    </a>
+
+    <a class="phase-card" href="vlsi_03_verilog_rtl.html">
+      <div class="num">PHASE 3 · 8–10 weeks</div>
+      <h3>RTL Design & Verification</h3>
+      <p>Verilog/SystemVerilog from scratch, testbenches, coverage, and logic synthesis (RTL → gates). Highest industry priority.</p>
+    </a>
+
+    <a class="phase-card" href="vlsi_04_physical_design.html">
+      <div class="num">PHASE 4 · 8 weeks</div>
+      <h3>Physical Design & STA</h3>
+      <p>Floorplanning, placement, clock tree synthesis, routing, and static timing analysis — the core "chip design" skillset.</p>
+    </a>
+
+    <a class="phase-card" href="vlsi_05_fabrication.html">
+      <div class="num">PHASE 5 · 4–5 weeks</div>
+      <h3>Semiconductor Fabrication</h3>
+      <p>Crystal growth, oxidation, lithography, doping, deposition, etching, and the full CMOS process flow. NPTEL-heavy.</p>
+    </a>
+
+    <a class="phase-card" href="vlsi_06_dft_lowpower.html">
+      <div class="num">PHASE 6 · 8 weeks</div>
+      <h3>DFT, Low Power & Custom Layout</h3>
+      <p>Scan/ATPG/BIST/JTAG, low-power design techniques, custom layout rules with a free open-source PDK, analog basics.</p>
+    </a>
+
+    <a class="phase-card" href="vlsi_07_08_projects_nptel.html">
+      <div class="num">PHASE 7 & 8 · 10–12 weeks</div>
+      <h3>Projects, NPTEL & Job Prep</h3>
+      <p>RISC-V processor project, AES core, GitHub portfolio, NPTEL exam strategy + formula sheet, 50 interview questions, target companies.</p>
+    </a>
+
+  </div>
+
+  <h2>Tools You'll Need (all free)</h2>
+  <table>
+    <tr><th>Tool</th><th>Purpose</th><th>Used from</th></tr>
+    <tr><td>LTSpice</td><td>SPICE simulation of MOSFETs & CMOS circuits</td><td>Phase 1</td></tr>
+    <tr><td>iverilog + GTKWave</td><td>Verilog simulation & waveform viewing</td><td>Phase 3</td></tr>
+    <tr><td>Yosys</td><td>Logic synthesis (RTL → gates)</td><td>Phase 3</td></tr>
+    <tr><td>OpenSTA</td><td>Static timing analysis</td><td>Phase 4</td></tr>
+    <tr><td>OpenROAD</td><td>Full physical design flow</td><td>Phase 4</td></tr>
+    <tr><td>Magic VLSI + Sky130 PDK</td><td>Custom transistor-level layout, real open process</td><td>Phase 6</td></tr>
+    <tr><td>KLayout</td><td>GDSII viewing</td><td>Phase 4/6</td></tr>
+  </table>
+
+  <h2>Weekly Rhythm</h2>
+  <div class="formula">
+Mon  — Theory: read the module, take notes
+Tue  — Theory + matching NPTEL lecture video
+Wed  — Lab: hands-on tool/simulation
+Thu  — Lab + coding practice (HDLBits / Verilog)
+Fri  — Problem solving: past-paper style questions
+Sat  — Project work (RISC-V / AES / OpenROAD)
+Sun  — Review, update notes, plan next week
+  </div>
+
+  <div class="callout">
+    <strong>Start here:</strong> open <a href="vlsi_01_electronics_cmos.html" style="color:var(--accent)">Phase 1 — Electronics & CMOS Refresh</a>. Since you're already strong in logic gates and digital electronics, you can likely move through the digital-logic sections faster and spend your time on the MOSFET/CMOS transistor-level material.
+  </div>
+
+</div>
+</body>
+</html>

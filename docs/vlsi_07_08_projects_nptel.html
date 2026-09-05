@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Phase 7 & 8 — Projects, NPTEL & Job Prep | VLSI Course</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="vlsi_style.css">
+</head>
+<body>
+<div class="topnav">
+  <span class="brand">⚡ VLSI Course</span>
+  <a href="index.html">Home</a>
+  <a href="vlsi_01_electronics_cmos.html">1. CMOS Refresh</a>
+  <a href="vlsi_02_memory_arithmetic.html">2. Memory & Arithmetic</a>
+  <a href="vlsi_03_verilog_rtl.html">3. Verilog & RTL</a>
+  <a href="vlsi_04_physical_design.html">4. Physical Design</a>
+  <a href="vlsi_05_fabrication.html">5. Fabrication</a>
+  <a href="vlsi_06_dft_lowpower.html">6. DFT & Low Power</a>
+  <a href="vlsi_07_08_projects_nptel.html" class="current">7&8. Projects & NPTEL</a>
+</div>
+
+<div class="wrap">
+<h1>Phase 7 & 8 — Portfolio Projects, NPTEL Certification & Job Prep
+  <span class="sub">Turn everything from Phases 1–6 into proof of skill, a certification, and interview readiness. Duration: 10–12 weeks.</span>
+</h1>
+
+<h2>7.1 — RISC-V Processor Design Project ⭐ Flagship Portfolio Piece</h2>
+
+<div class="figure">
+<svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:12px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:10px;fill:var(--muted);}</style>
+  <text x="300" y="18" class="lbl" text-anchor="middle" font-weight="700" fill="var(--accent)">5-Stage RISC-V Pipeline</text>
+  <g>
+    <rect x="20" y="40" width="90" height="70" fill="var(--panel2)" stroke="var(--accent)"/>
+    <text x="65" y="70" class="lbl" text-anchor="middle">IF</text>
+    <text x="65" y="90" class="lbl-m" text-anchor="middle">Fetch</text>
+
+    <rect x="130" y="40" width="90" height="70" fill="var(--panel2)" stroke="var(--accent)"/>
+    <text x="175" y="70" class="lbl" text-anchor="middle">ID</text>
+    <text x="175" y="90" class="lbl-m" text-anchor="middle">Decode / RegRead</text>
+
+    <rect x="240" y="40" width="90" height="70" fill="var(--panel2)" stroke="var(--accent)"/>
+    <text x="285" y="70" class="lbl" text-anchor="middle">EX</text>
+    <text x="285" y="90" class="lbl-m" text-anchor="middle">ALU</text>
+
+    <rect x="350" y="40" width="90" height="70" fill="var(--panel2)" stroke="var(--accent)"/>
+    <text x="395" y="70" class="lbl" text-anchor="middle">MEM</text>
+    <text x="395" y="90" class="lbl-m" text-anchor="middle">Data memory</text>
+
+    <rect x="460" y="40" width="90" height="70" fill="var(--panel2)" stroke="var(--accent)"/>
+    <text x="505" y="70" class="lbl" text-anchor="middle">WB</text>
+    <text x="505" y="90" class="lbl-m" text-anchor="middle">Register writeback</text>
+
+    <line x1="110" y1="75" x2="130" y2="75" stroke="var(--muted)" marker-end="url(#a8)"/>
+    <line x1="220" y1="75" x2="240" y2="75" stroke="var(--muted)" marker-end="url(#a8)"/>
+    <line x1="330" y1="75" x2="350" y2="75" stroke="var(--muted)" marker-end="url(#a8)"/>
+    <line x1="440" y1="75" x2="460" y2="75" stroke="var(--muted)" marker-end="url(#a8)"/>
+  </g>
+  <defs><marker id="a8" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="var(--muted)"/></marker></defs>
+
+  <!-- forwarding path -->
+  <path d="M 285 40 Q 285 20 175 20 Q 130 20 130 40" fill="none" stroke="var(--accent3)" stroke-dasharray="3 2"/>
+  <text x="200" y="15" class="lbl-m" fill="var(--accent3)">EX→EX / MEM→EX forwarding (hazard fix)</text>
+
+  <text x="285" y="150" class="lbl-m" text-anchor="middle">Pipeline registers between every stage: IF/ID, ID/EX, EX/MEM, MEM/WB</text>
+  <text x="285" y="170" class="lbl-m" text-anchor="middle">Control hazards handled via predict-not-taken + flush on misprediction</text>
+</svg>
+<div class="caption"><b>Fig 7.1 —</b> The classic 5-stage pipeline. Data hazards are solved with forwarding paths (bypass EX/MEM results back into EX before they're written to the register file); control hazards (branches) are solved with prediction + pipeline flush.</div>
+</div>
+
+<h3>Project plan (4 weeks)</h3>
+<table>
+<tr><th>Week</th><th>Goal</th></tr>
+<tr><td>1</td><td>Study RV32I ISA (47 instructions). Build single-cycle datapath: ALU, 32×32-bit register file, immediate generator, PC logic</td></tr>
+<tr><td>2</td><td>Control unit (FSM or ROM-based), instruction decode, instruction/data memory interface</td></tr>
+<tr><td>3</td><td>Add pipeline registers (IF/ID, ID/EX, EX/MEM, MEM/WB), forwarding unit, branch flush logic</td></tr>
+<tr><td>4</td><td>Run RISC-V compliance tests, synthesize with Yosys, run full physical design in OpenROAD to get a real GDSII</td></tr>
+</table>
+
+<div class="callout">Reference: <strong>Patterson & Hennessy — Computer Organization and Design (RISC-V Edition)</strong> is the must-read here. Also check riscv.org/specifications and github.com/riscv/riscv-compliance for the test suite, and picorv32 as a reference implementation.</div>
+
+<hr>
+
+<h2>7.2 — AES Encryption Core Project</h2>
+<p>Implement AES-128 in Verilog: RTL → functional verification → synthesis → power analysis. Optimize for throughput (pipeline), area (iterative datapath reuse), or power (clock gating) depending on what you want to showcase. This demonstrates security-hardware knowledge, which is valued highly at Intel, Qualcomm, and Arm.</p>
+
+<h2>7.3 — OpenROAD Chip Tapeout</h2>
+<p>Take your RISC-V or AES core through the complete physical design flow using OpenROAD, targeting Sky130 or Nangate45. Aim to actually submit to the Efabless Open MPW shuttle. Document your floorplan, placement density, routing congestion, and the story of how you closed timing — this is exactly what interviewers want to hear about.</p>
+
+<h2>7.4 — Portfolio & GitHub Setup</h2>
+<table>
+<tr><th>Repository</th><th>Contents</th></tr>
+<tr><td><code>vlsi-verilog-practice</code></td><td>All HDLBits solutions + basic modules</td></tr>
+<tr><td><code>riscv32-processor</code></td><td>Your RISC-V implementation</td></tr>
+<tr><td><code>aes-core-vlsi</code></td><td>AES core with testbench</td></tr>
+<tr><td><code>phy-design-notes</code></td><td>OpenROAD runs, scripts, timing-closure analysis notes</td></tr>
+</table>
+<p>Document each with: a README + block diagram, waveform screenshots, synthesis reports (area/timing), and physical design images (floorplan, placement, routing). On LinkedIn: headline as "RTL Design Engineer | Verilog | Physical Design | VLSI", link your repos as projects, list NPTEL certifications once earned.</p>
+
+<hr>
+
+<h2>8.1 — NPTEL Courses to Target</h2>
+<table>
+<tr><th>Course</th><th>Institute</th><th>Duration</th></tr>
+<tr><td>VLSI Design</td><td>IIT Madras</td><td>8 weeks</td></tr>
+<tr><td>Digital VLSI Design</td><td>IIT Kharagpur</td><td>12 weeks</td></tr>
+<tr><td>CMOS VLSI Design</td><td>IIT Bombay</td><td>8 weeks</td></tr>
+<tr><td>Hardware Modeling using Verilog</td><td>IIT Kharagpur</td><td>8 weeks</td></tr>
+<tr><td>Semiconductor Devices & Circuits</td><td>IIT Madras</td><td>12 weeks</td></tr>
+<tr><td>VLSI Physical Design Automation</td><td>IIT Kharagpur</td><td>8 weeks</td></tr>
+</table>
+<p><strong>Recommended starting point:</strong> "Digital VLSI Design" (IIT Kharagpur) or "VLSI Design" (IIT Madras). Exams are proctored, 3-hour MCQ, passing score ≥25/100 (Elite Gold at &gt;90%). Verify current syllabus, dates, and fees directly on <a href="https://nptel.ac.in" style="color:var(--accent)">nptel.ac.in</a>, since these can change term to term.</p>
+
+<h2>8.2 — NPTEL High-Frequency Topics</h2>
+<table>
+<tr><th>Area</th><th>Approx. weight</th><th>Focus</th></tr>
+<tr><td>MOSFET & CMOS circuits</td><td>~25%</td><td>Vth with body effect, ID numericals, VTC, delay/power calculation, gate sizing</td></tr>
+<tr><td>Digital design</td><td>~20%</td><td>FSM (Moore/Mealy), HDL concepts, K-maps, setup/hold identification</td></tr>
+<tr><td>Fabrication</td><td>~20%</td><td>Deal-Grove oxidation, Fick's law diffusion, implant range/straggle, lithography resolution, CMOS process order</td></tr>
+<tr><td>Physical design</td><td>~15%</td><td>Floorplanning, HPWL, routing algorithms, DRC rules</td></tr>
+<tr><td>STA</td><td>~15%</td><td>Setup/hold slack calculations, critical path, clock skew effects</td></tr>
+<tr><td>DFT</td><td>~5%</td><td>Scan chains, fault coverage, BIST</td></tr>
+</table>
+
+<h2>8.3 — 3-Week Exam Sprint Plan</h2>
+<table>
+<tr><th>Week</th><th>Focus</th></tr>
+<tr><td>1</td><td>Re-read NPTEL slides, solve all assignment questions with solutions, focus on MOSFET & fabrication numericals</td></tr>
+<tr><td>2</td><td>Solve 3 full past papers under timed 3-hour conditions; categorize wrong answers by topic; re-study weak spots</td></tr>
+<tr><td>3</td><td>Build a formula cheat sheet (for memorization, not exam use), drill 100 common MCQs from memory, deep-dive weak topics, one full mock exam</td></tr>
+</table>
+
+<h3>Formula sheet — memorize these</h3>
+<div class="formula">
+Semiconductor Physics:
+  ni = √(Nc·Nv) · exp(−Eg/2kT)
+  Vbi = (kT/q) · ln(NA·ND/ni²)
+
+MOSFET:
+  Vth = VFB + 2φF + √(2εsi·q·NA·2φF)/Cox
+  ID(sat) = (μnCox/2)·(W/L)·(VGS−Vth)²
+  gm = √(2μnCox·(W/L)·ID)
+
+Inverter:
+  VM ≈ VDD/2 (symmetric case)
+  NMH = VOH − VIH,   NML = VIL − VOL
+  tp = 0.69·R·CL
+
+Power:
+  Pdyn = α·C·VDD²·f
+
+Fabrication:
+  R = k₁·λ/NA        (lithography resolution)
+  DOF = k₂·λ/NA²
+  x_ox² = B·t         (parabolic oxidation regime)
+
+STA:
+  Slack(setup) = T_clk + t_clk,capture − t_clk,launch − tCQ − t_comb − t_setup
+  Slack(hold)  = tCQ + t_comb − t_hold   (must stay positive, independent of clock frequency)
+</div>
+
+<hr>
+
+<h2>8.4 — Job Preparation</h2>
+
+<h3>Target companies with India design centers</h3>
+<table>
+<tr><th>Category</th><th>Companies</th></tr>
+<tr><td>Large semis</td><td>Qualcomm, Intel, Texas Instruments, Nvidia, MediaTek, Arm, Samsung, Micron — all with Bangalore/Hyderabad/Noida/Pune design centers</td></tr>
+<tr><td>EDA + design services</td><td>Synopsys, Cadence, Tessolve, eInfochips (Arrow), Tata Elxsi, Wipro VLSI, HCL, L&T Technology Services</td></tr>
+<tr><td>PSU / government</td><td>CDAC, DRDO, ISRO (VSSC, SAC), ECIL, BEL</td></tr>
+<tr><td>India semiconductor push</td><td>Vedanta-Foxconn, Micron Sanand, Tata-PSMC (verify current hiring status — this sector is moving fast)</td></tr>
+</table>
+
+<div class="callout"><strong>Your advantage:</strong> 4 years in IT + an EC degree means you understand both software discipline (version control, debugging, documentation) and hardware fundamentals. That combination is genuinely rare and worth leading with in interviews — many VLSI freshers have the hardware but not the engineering discipline.</div>
+
+<h3>Target roles, ranked by opening volume</h3>
+<ol>
+<li>RTL Design Engineer (most openings)</li>
+<li>Physical Design Engineer (high demand)</li>
+<li>Verification Engineer (SystemVerilog/UVM)</li>
+<li>DFT Engineer (niche, less competition)</li>
+<li>CAD/EDA Engineer (your software background is a direct advantage here)</li>
+</ol>
+
+<h3>Interview structure</h3>
+<table>
+<tr><th>Round</th><th>Format</th><th>Focus</th></tr>
+<tr><td>1: Technical screen</td><td>30–45 min phone/video</td><td>MOSFET basics, CMOS logic, 1–2 quick Verilog coding questions</td></tr>
+<tr><td>2: Technical deep dive</td><td>2–4 onsite rounds, 60 min each</td><td>Detailed Verilog coding, RTL design, timing analysis, DFT</td></tr>
+<tr><td>3: Behavioral + system design</td><td>Panel or 1:1</td><td>Chip-level design discussion, cross-functional communication (your strength)</td></tr>
+</table>
+
+<h3>50 must-know interview questions</h3>
+
+<h4>MOSFET & CMOS (1–15)</h4>
+<ol>
+<li>Draw nMOS and pMOS cross-sections. Key differences?</li>
+<li>Explain the three MOSFET operating regions with equations.</li>
+<li>What is threshold voltage? How does body effect change it?</li>
+<li>What is channel length modulation? Which parameter models it?</li>
+<li>Why does subthreshold leakage increase with technology scaling?</li>
+<li>Draw a CMOS inverter and explain operation for both input states.</li>
+<li>Draw the VTC of a CMOS inverter — label all 5 regions and VM.</li>
+<li>Calculate propagation delay of an inverter driving a 50fF load.</li>
+<li>What are noise margins? How do you calculate NMH and NML?</li>
+<li>Why is NAND preferred over NOR in CMOS?</li>
+<li>Design a CMOS implementation of Y = A·B + C with minimum transistors.</li>
+<li>What is a transmission gate? Where is it used?</li>
+<li>Difference between static and dynamic CMOS?</li>
+<li>What is charge sharing in dynamic CMOS? How is it prevented?</li>
+<li>Compare power dissipation: static CMOS vs. pseudo-nMOS vs. dynamic CMOS.</li>
+</ol>
+
+<h4>Verilog & RTL (16–30)</h4>
+<ol start="16">
+<li>Difference between blocking and non-blocking assignment?</li>
+<li>Write Verilog for a D flip-flop with async reset.</li>
+<li>Write Verilog for a 4:1 MUX.</li>
+<li>What is a latch? When does Verilog infer one, and is that good or bad?</li>
+<li>Difference between <code>always @(*)</code> and <code>always @(posedge clk)</code>?</li>
+<li>Difference between <code>wire</code> and <code>reg</code>?</li>
+<li>Write a Moore FSM for a sequence detector (detect "1010").</li>
+<li>Difference between Moore and Mealy FSMs?</li>
+<li>Write Verilog for a parameterized N-bit shift register.</li>
+<li>What does <code>$random</code> do, and when would you use it in a testbench?</li>
+<li>What is a race condition in Verilog? Give an example.</li>
+<li>What does <code>`timescale 1ns/1ps</code> mean?</li>
+<li>What is logical equivalence checking (LEC)?</li>
+<li>What is RTL lint? Name 3 things a lint tool checks.</li>
+<li>Describe the synthesis flow from RTL to gate-level netlist.</li>
+</ol>
+
+<h4>Physical Design & STA (31–40)</h4>
+<ol start="31">
+<li>What are the steps in a physical design flow?</li>
+<li>What is floorplanning? What decisions get made there?</li>
+<li>What is IR drop? Why does it matter, and how is it fixed?</li>
+<li>What is clock skew? How does it affect setup vs. hold timing?</li>
+<li>What is clock tree synthesis, and what does it achieve?</li>
+<li>What is a setup time violation? How is it fixed?</li>
+<li>What is a hold time violation? Can it be fixed by reducing frequency?</li>
+<li>What is crosstalk? Differentiate crosstalk noise vs. crosstalk delay.</li>
+<li>What is electromigration, and how does it affect metal layer design?</li>
+<li>What are process corners? Which is worst for setup vs. hold?</li>
+</ol>
+
+<h4>DFT (41–45)</h4>
+<ol start="41">
+<li>What is scan design? Explain how a scan flip-flop works.</li>
+<li>What is fault coverage? What's a typical target percentage?</li>
+<li>What is ATPG? Name two ATPG algorithms.</li>
+<li>What is JTAG/boundary scan, and why is it used?</li>
+<li>What is LBIST? What are PRPG and MISR?</li>
+</ol>
+
+<h4>Fabrication (46–50)</h4>
+<ol start="46">
+<li>Explain the CMOS twin-well process in 10 steps.</li>
+<li>What is STI, and why did it replace LOCOS?</li>
+<li>Difference between CVD and PVD — when is each used?</li>
+<li>What is ion implantation, and why is it preferred over thermal diffusion?</li>
+<li>What is EUV lithography, and why was it needed?</li>
+</ol>
+
+<h2>Progress Milestones</h2>
+<table>
+<tr><th>Milestone</th><th>Target</th><th>Verification</th></tr>
+<tr><td>MOSFET numericals confident</td><td>Month 1</td><td>80%+ on Phase 1 self-tests</td></tr>
+<tr><td>CMOS inverter design + sim</td><td>Month 2</td><td>LTSpice VTC matches theory</td></tr>
+<tr><td>All HDLBits problems solved</td><td>Month 4</td><td>100% complete</td></tr>
+<tr><td>UART module verified</td><td>Month 4</td><td>All testbench assertions pass</td></tr>
+<tr><td>RISC-V single-cycle working</td><td>Month 6</td><td>Passes riscv-compliance tests</td></tr>
+<tr><td>OpenROAD full flow complete</td><td>Month 7</td><td>GDSII generated, DRC clean</td></tr>
+<tr><td>Sky130 inverter layout clean</td><td>Month 7</td><td>DRC + LVS pass in Magic</td></tr>
+<tr><td>NPTEL course enrolled + active</td><td>Month 8</td><td>&gt;80% weekly quiz scores</td></tr>
+<tr><td>50 interview questions answered</td><td>Month 10</td><td>Peer review or mock interview</td></tr>
+<tr><td>GitHub portfolio ready</td><td>Month 11</td><td>3+ documented repos</td></tr>
+<tr><td>NPTEL exam appeared</td><td>Month 12</td><td>Target: Elite/Gold</td></tr>
+<tr><td>Job applications sent</td><td>Month 12+</td><td>5+ applications/week</td></tr>
+</table>
+
+<div class="callout tip">Your 4 years in IT are a genuine asset here, not baggage to explain away — they mean you already have the engineering discipline (debugging, documentation, systems thinking) that many fresh EC graduates lack. Build the RISC-V core, get the certification, and walk into interviews with something real to show.</div>
+
+<div class="footer-nav">
+  <a href="vlsi_06_dft_lowpower.html">← Phase 6: DFT & Low Power</a>
+  <a href="vlsi_00_index.html">Back to Course Home →</a>
+</div>
+</div>
+</body>
+</html>

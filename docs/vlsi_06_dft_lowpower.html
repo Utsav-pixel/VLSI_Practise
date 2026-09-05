@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Phase 6 — DFT, Low Power & Custom Layout | VLSI Course</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="vlsi_style.css">
+</head>
+<body>
+<div class="topnav">
+  <span class="brand">⚡ VLSI Course</span>
+  <a href="index.html">Home</a>
+  <a href="vlsi_01_electronics_cmos.html">1. CMOS Refresh</a>
+  <a href="vlsi_02_memory_arithmetic.html">2. Memory & Arithmetic</a>
+  <a href="vlsi_03_verilog_rtl.html">3. Verilog & RTL</a>
+  <a href="vlsi_04_physical_design.html">4. Physical Design</a>
+  <a href="vlsi_05_fabrication.html">5. Fabrication</a>
+  <a href="vlsi_06_dft_lowpower.html" class="current">6. DFT & Low Power</a>
+  <a href="vlsi_07_08_projects_nptel.html">7&8. Projects & NPTEL</a>
+</div>
+
+<div class="wrap">
+<h1>Phase 6 — DFT, Low Power Design & Custom Layout
+  <span class="sub">What separates senior VLSI engineers from junior ones. Duration: 8 weeks.</span>
+</h1>
+
+<h2>6.1 — Design for Testability (DFT) <em class="tag badge-industry">Industry Core</em></h2>
+
+<p>Once a chip is fabricated, you can't physically probe internal nodes of a billion-transistor die. DFT builds test access into the design from day one, targeting realistic manufacturing defect models.</p>
+
+<h3>Fault models</h3>
+<table>
+<tr><th>Fault</th><th>Description</th></tr>
+<tr><td>Stuck-at (SA0/SA1)</td><td>Node permanently stuck at 0 or 1 — the most common model used</td></tr>
+<tr><td>Bridging</td><td>Two nodes accidentally shorted together</td></tr>
+<tr><td>Transistor stuck-open/short</td><td>Individual transistor fails to switch</td></tr>
+<tr><td>Delay fault</td><td>Path too slow — reflects real timing defects</td></tr>
+<tr><td>Cell-aware fault</td><td>Derived from actual transistor topology inside a cell</td></tr>
+</table>
+
+<h3>Scan design ⭐ most-used DFT technique</h3>
+<div class="figure">
+<svg viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:12px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:10px;fill:var(--muted);}</style>
+  <text x="280" y="20" class="lbl" text-anchor="middle" font-weight="700" fill="var(--accent)">Scan Chain</text>
+
+  <text x="20" y="105" class="lbl">SI →</text>
+  <g>
+    <rect x="70" y="80" width="80" height="50" rx="4" fill="var(--panel2)" stroke="var(--nmos)"/>
+    <text x="110" y="100" class="lbl-m" text-anchor="middle">SFF₁</text>
+    <text x="110" y="118" class="lbl-m" text-anchor="middle">D/SI mux</text>
+
+    <rect x="200" y="80" width="80" height="50" rx="4" fill="var(--panel2)" stroke="var(--nmos)"/>
+    <text x="240" y="100" class="lbl-m" text-anchor="middle">SFF₂</text>
+
+    <rect x="330" y="80" width="80" height="50" rx="4" fill="var(--panel2)" stroke="var(--nmos)"/>
+    <text x="370" y="100" class="lbl-m" text-anchor="middle">SFFₙ</text>
+
+    <line x1="150" y1="105" x2="200" y2="105" stroke="var(--accent)" stroke-width="2" marker-end="url(#a7)"/>
+    <line x1="280" y1="105" x2="330" y2="105" stroke="var(--accent)" stroke-width="2" marker-end="url(#a7)"/>
+    <line x1="410" y1="105" x2="460" y2="105" stroke="var(--accent)" stroke-width="2" marker-end="url(#a7)"/>
+  </g>
+  <text x="480" y="105" class="lbl">→ SO</text>
+  <defs><marker id="a7" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="var(--accent)"/></marker></defs>
+
+  <line x1="70" y1="150" x2="410" y2="150" stroke="var(--accent2)" stroke-dasharray="3 2"/>
+  <text x="240" y="165" class="lbl-m" text-anchor="middle" fill="var(--accent2)">SE (Scan Enable) — when 1, all flops form one big shift register</text>
+
+  <text x="280" y="195" class="lbl-m" text-anchor="middle">Test cycle: shift pattern in → 1 functional clock → shift result out → compare</text>
+</svg>
+<div class="caption"><b>Fig 6.1 —</b> Regular flip-flops are replaced with Scan Flip-Flops (extra SI input, SE select). With SE=1 the entire chain becomes one long shift register, giving external test equipment full controllability and observability of every internal state bit. Multiple parallel chains reduce test time on large designs.</div>
+</div>
+
+<h3>BIST (Built-In Self Test)</h3>
+<ul class="checklist">
+<li><strong>LBIST</strong> (Logic BIST): on-chip PRPG (pattern generator) + MISR (signature analyzer)</li>
+<li><strong>MBIST</strong> (Memory BIST): tests SRAM/DRAM arrays automatically using March algorithms (March C-, March X, March Y) for stuck-at, coupling, and pattern-sensitivity faults</li>
+</ul>
+
+<h3>ATPG (Automatic Test Pattern Generation)</h3>
+<p>Algorithms (D-algorithm, PODEM, FAN) automatically generate test vectors targeting stuck-at faults. Fault coverage target: typically &gt;98% in industry. Untestable faults usually come from redundant logic or tied-off nodes.</p>
+
+<h3>Boundary Scan (JTAG) — IEEE 1149.1</h3>
+<p>Tests interconnects between chips on a PCB via a 4-wire interface (TCK, TMS, TDI, TDO + optional TRST) and a TAP state machine. Also doubles as the debug port in most modern processors.</p>
+
+<hr>
+
+<h2>6.2 — Low Power VLSI Design <em class="tag badge-industry">Industry Critical</em></h2>
+
+<div class="formula">
+Ptotal = Pdynamic + Pstatic
+Pdynamic = α · CL · VDD² · f     (switching power)
+Pstatic  = I_leakage · VDD       (leakage power — can EXCEED dynamic power below 28nm in idle blocks)
+</div>
+
+<h3>Dynamic power techniques</h3>
+<table>
+<tr><th>Technique</th><th>How it works</th></tr>
+<tr><td>Voltage scaling</td><td>Power ∝ VDD² — most effective lever, but delay rises as VDD drops toward Vth</td></tr>
+<tr><td>DVFS</td><td>Dynamic Voltage and Frequency Scaling together — used in every modern smartphone SoC</td></tr>
+<tr><td>Clock gating ⭐</td><td>ICG cell disables clock to idle registers — the single most-used technique</td></tr>
+<tr><td>Operand isolation</td><td>Freeze data inputs of a block when its output isn't needed, preventing spurious switching</td></tr>
+<tr><td>Activity reduction</td><td>Gray-code counters (1 bit toggles/cycle vs. binary); bus encoding to cut transitions</td></tr>
+</table>
+
+<h3>Static (leakage) power techniques</h3>
+<div class="figure">
+<svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:12px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:10px;fill:var(--muted);}</style>
+  <text x="260" y="20" class="lbl" text-anchor="middle" font-weight="700" fill="var(--accent)">Power Gating (Header Switch)</text>
+
+  <line x1="100" y1="40" x2="420" y2="40" stroke="var(--text)" stroke-width="2"/>
+  <text x="260" y="32" class="lbl-m" text-anchor="middle">VDD (always-on rail)</text>
+
+  <!-- header pMOS -->
+  <circle cx="260" cy="70" r="18" fill="none" stroke="var(--pmos)" stroke-width="2"/>
+  <text x="260" y="75" class="lbl-m" text-anchor="middle" fill="var(--pmos)">Header</text>
+  <line x1="260" y1="40" x2="260" y2="52" stroke="var(--text)"/>
+  <line x1="260" y1="88" x2="260" y2="110" stroke="var(--text)"/>
+  <text x="300" y="70" class="lbl-m" fill="var(--accent2)">← sleep enable</text>
+
+  <text x="260" y="105" class="lbl-m" text-anchor="middle">virtual VDD (VDDV)</text>
+  <rect x="180" y="110" width="160" height="70" fill="var(--panel2)" stroke="var(--nmos)"/>
+  <text x="260" y="150" class="lbl" text-anchor="middle">Idle logic block</text>
+  <text x="260" y="168" class="lbl-m" text-anchor="middle">(cut off from VDD when asleep)</text>
+
+  <line x1="260" y1="180" x2="260" y2="210" stroke="var(--text)"/>
+  <line x1="100" y1="210" x2="420" y2="210" stroke="var(--text)" stroke-width="2"/>
+  <text x="260" y="228" class="lbl-m" text-anchor="middle">GND</text>
+</svg>
+<div class="caption"><b>Fig 6.2 —</b> A header (pMOS) or footer (nMOS) switch disconnects an idle block's power rail entirely, cutting leakage to near-zero. Retention registers (SRPG) can keep critical state alive during power-down; wake-up must ramp current gradually to avoid Ldi/dt supply noise.</div>
+</div>
+
+<table>
+<tr><th>Technique</th><th>Notes</th></tr>
+<tr><td>Multi-Threshold CMOS (MTCMOS)</td><td>High-Vth cells on non-critical paths (less leakage), low-Vth on critical paths (faster) — synthesis assigns Vth per cell automatically</td></tr>
+<tr><td>Power gating</td><td>Header/footer switches fully disconnect idle blocks (Fig 6.2)</td></tr>
+<tr><td>Body biasing</td><td>Forward bias (FBB) lowers Vth for speed; reverse bias (RBB) raises Vth to cut leakage</td></tr>
+</table>
+
+<p><strong>Standards:</strong> UPF (Unified Power Format, IEEE 1801) defines power domains, voltage rails, isolation cells, and level shifters — this is what you'll actually write/read on the job (CPF is the older Cadence-specific equivalent).</p>
+
+<hr>
+
+<h2>6.3 — Custom Layout (Full Custom Design)</h2>
+
+<p>Standard cells get synthesized and placed automatically; full custom is reserved for analog circuits, memory bitcells, critical timing paths, and I/O pads — where minimum area, minimum delay, or precise matching matter enough to hand-draw.</p>
+
+<div class="figure">
+<svg viewBox="0 0 480 240" xmlns="http://www.w3.org/2000/svg">
+  <style>.lbl{font-family:Segoe UI,sans-serif;font-size:11px;fill:var(--text);} .lbl-m{font-family:Segoe UI,sans-serif;font-size:9px;fill:var(--muted);}</style>
+  <text x="240" y="18" class="lbl" text-anchor="middle" font-weight="700" fill="var(--accent)" font-size="13">Standard Cell Layout (Inverter)</text>
+
+  <rect x="60" y="40" width="360" height="160" fill="none" stroke="var(--border)"/>
+  <line x1="60" y1="60" x2="420" y2="60" stroke="var(--accent2)" stroke-width="4"/>
+  <text x="440" y="65" class="lbl-m">VDD rail</text>
+  <line x1="60" y1="180" x2="420" y2="180" stroke="var(--accent2)" stroke-width="4"/>
+  <text x="440" y="185" class="lbl-m">VSS rail</text>
+
+  <!-- pMOS diffusion (top half) -->
+  <rect x="150" y="75" width="60" height="45" fill="var(--pmos)" opacity="0.5"/>
+  <text x="180" y="100" class="lbl-m" text-anchor="middle">pMOS</text>
+  <text x="180" y="70" class="lbl-m" text-anchor="middle">(near VDD)</text>
+
+  <!-- poly gate -->
+  <rect x="175" y="65" width="10" height="105" fill="#6b7594"/>
+  <text x="180" y="200" class="lbl-m" text-anchor="middle">poly gate</text>
+
+  <!-- nMOS diffusion (bottom half) -->
+  <rect x="150" y="135" width="60" height="45" fill="var(--nmos)" opacity="0.5"/>
+  <text x="180" y="160" class="lbl-m" text-anchor="middle">nMOS</text>
+  <text x="180" y="192" class="lbl-m" text-anchor="middle">(near VSS)</text>
+
+  <!-- pins -->
+  <rect x="100" y="118" width="14" height="14" fill="var(--accent)"/>
+  <text x="107" y="115" class="lbl-m" text-anchor="middle">A (in)</text>
+  <rect x="250" y="118" width="14" height="14" fill="var(--accent)"/>
+  <text x="257" y="115" class="lbl-m" text-anchor="middle">Y (out)</text>
+
+  <text x="240" y="220" class="lbl-m" text-anchor="middle">Fixed cell height (site rows); variable width; power rails shared between adjacent rows</text>
+</svg>
+<div class="caption"><b>Fig 6.3 —</b> Canonical standard-cell layout: nMOS near the VSS rail, pMOS near the VDD rail, shared poly gate running vertically through both. Fixed height lets cells tile into rows during automatic placement; input/output pins sit on Metal1.</div>
+</div>
+
+<h3>Verification steps (must know all three)</h3>
+<table>
+<tr><th>Check</th><th>Verifies</th></tr>
+<tr><td>DRC (Design Rule Check)</td><td>All geometry satisfies min width/spacing/enclosure/area rules</td></tr>
+<tr><td>LVS (Layout vs. Schematic)</td><td>Layout-extracted netlist matches the intended schematic netlist</td></tr>
+<tr><td>ERC (Electrical Rule Check)</td><td>Floating gates, unconnected inputs, other electrical issues</td></tr>
+<tr><td>PEX / xRC</td><td>Extracts real R, C parasitics from the layout for post-layout simulation</td></tr>
+</table>
+
+<div class="callout tip"><strong>Lab (free, real process — Sky130 via Efabless):</strong>
+<ul class="checklist">
+<li>Draw a CMOS inverter layout in Magic VLSI using the Sky130 PDK</li>
+<li>Run DRC and fix all violations</li>
+<li>Run LVS against the schematic, verify clean</li>
+<li>Design and layout a 6T SRAM cell</li>
+<li>Consider submitting a design to the Efabless Open MPW shuttle — free actual silicon fabrication</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>6.4 — Analog VLSI Basics <em>(awareness level)</em></h2>
+<p>Enough to work in mixed-signal environments and talk to analog colleagues — full analog design is its own career track.</p>
+<table>
+<tr><th>Block</th><th>Role</th></tr>
+<tr><td>Current mirror</td><td>Sets bias/operating point for amplifiers (basic + cascode versions)</td></tr>
+<tr><td>Differential pair</td><td>Core of any op-amp, gives high common-mode rejection</td></tr>
+<tr><td>Bandgap reference</td><td>Temperature-independent ~1.2V reference — sets voltage regulators across the chip</td></tr>
+<tr><td>PLL</td><td>Clock synthesis/multiplication — PFD, charge pump, VCO, divider, loop filter</td></tr>
+<tr><td>ADC/DAC</td><td>Flash, SAR, Sigma-Delta architectures — interface real-world sensors to the digital core</td></tr>
+</table>
+
+<h2>Resources for Phase 6</h2>
+<ul class="resource-list">
+<li>Bushnell & Agrawal — Essentials of Electronic Testing</li>
+<li>Wang, Wu, Wen — VLSI Test Principles and Architectures</li>
+<li>NPTEL — "Testing of VLSI Circuits", IIT Madras</li>
+<li>Rabaey, Chandrakasan, Nikolic — Digital Integrated Circuits Ch. 5–6 (low power)</li>
+<li>Chandrakasan — Low Power CMOS VLSI Circuit Design</li>
+<li>Matt Venn — "Zero to ASIC" YouTube series (Sky130 hands-on)</li>
+<li>Tools: Magic VLSI, KLayout, Sky130 PDK, efabless.com (all free)</li>
+</ul>
+
+<div class="footer-nav">
+  <a href="vlsi_05_fabrication.html">← Phase 5: Fabrication</a>
+  <a href="vlsi_07_08_projects_nptel.html">Phase 7 & 8: Projects, NPTEL & Job Prep →</a>
+</div>
+</div>
+</body>
+</html>
