@@ -1,56 +1,28 @@
-# The Vivado / RTL Design — Foundational Cheat Sheet
+# Vivado & RTL Design — Foundational Guide
 
-> Personal reference. Built for: software engineer → VLSI transition, B.Tech ECE, NPTEL Digital Electronics & VLSI (IIT Guwahati) track.
+> Complete reference for Vivado workflow, SystemVerilog templates, and RTL design best practices.
 > Philosophy: **understand every abstraction level (gate → dataflow → behavioral), never trust a waveform you haven't self-checked, document everything in text so it's diffable on GitHub.**
 
 ---
 
-## 0. How to use this document
+## Overview
 
-- Keep this file at the root of your HDL-portfolio repo as `CHEATSHEET.md`.
-- Every new assignment/project gets its own folder with a `README.md` that *links back here* instead of repeating basics.
-- Update this file over time — it's meant to grow with you, not be static.
+This guide covers everything you need for Vivado-based RTL design and verification:
+- Project creation (GUI & Tcl scripted)
+- SystemVerilog vs Verilog
+- Three abstraction levels (gate-level, dataflow, behavioral)
+- Combinational and sequential building blocks
+- FSM design patterns
+- Testbench patterns
+- Constraints (XDC)
+- Debugging in Vivado
+- Common pitfalls
 
----
-
-## 1. Repository / Project Structure (GitHub-ready)
-
-```
-vlsi-portfolio/
-├── CHEATSHEET.md                 <- this file
-├── 01_combinational/
-│   └── minterm_5var/
-│       ├── README.md             <- problem, K-map/QM work, truth table, final SOP/POS
-│       ├── gate_level.sv
-│       ├── dataflow.sv
-│       ├── behavioral.sv
-│       ├── tb.sv
-│       ├── run.tcl               <- scripted Vivado batch run (reproducible)
-│       └── sim/                  <- waveform screenshots, .vcd/.wdb (gitignored if large)
-├── 02_sequential/
-│   └── mod10_counter/...
-├── 03_fsm/
-│   └── traffic_light/...
-└── .gitignore                    <- ignore .jou, .log, .cache/, .Xil/, *.wdb (or use Git LFS)
-```
-
-**`.gitignore` essentials for Vivado:**
-```
-*.jou
-*.log
-.Xil/
-*.cache/
-*.hw/
-*.ip_user_files/
-*.runs/
-*.sim/
-*.str
-```
-Vivado generates enormous amounts of scratch/cache data — never commit `.runs`, `.sim`, `.cache`, `.Xil`. Commit only: source `.sv/.v`, `.xdc` constraints, `.tcl` scripts, and your `README.md` + final waveform screenshot/exported image.
+**Note**: For repository structure and project organization, see the main [README.md](./README.md).
 
 ---
 
-## 2. Creating a Project — GUI Flow
+## 1. Creating a Project — GUI Flow
 
 1. `File → New Project` → Name it, choose location (put it *inside* your assignment folder or point Vivado to generate a scratch `build/` dir you `.gitignore`).
 2. **Project Type**: RTL Project → check "Do not specify sources at this time" if unsure, or add now.
@@ -70,7 +42,7 @@ Vivado generates enormous amounts of scratch/cache data — never commit `.runs`
 
 ---
 
-## 3. Creating a Project — Tcl (scripted, reproducible, GitHub-friendly)
+## 2. Creating a Project — Tcl (scripted, reproducible, GitHub-friendly)
 
 This is the version you should actually commit to your repo as `run.tcl`, so anyone (including future-you) can rebuild the project from source with one command.
 
@@ -109,7 +81,7 @@ xsim tb_sim -gui                  # or open waveform GUI instead of -runall
 
 ---
 
-## 4. SystemVerilog vs Verilog — pick SV
+## 3. SystemVerilog vs Verilog — pick SV
 
 Use `.sv` extension, not `.v`, for everything new. Fully supported in Vivado 2026.1, and gives you cleaner constructs that map 1:1 to what you'll see in real job codebases.
 
@@ -123,7 +95,7 @@ Use `.sv` extension, not `.v`, for everything new. Fully supported in Vivado 202
 
 ---
 
-## 5. Data Types & Operators Quick Reference
+## 4. Data Types & Operators Quick Reference
 
 **Types**
 ```systemverilog
@@ -150,9 +122,9 @@ integer i;              // 32-bit signed, simulation-only (loops)
 
 ---
 
-## 6. Three Abstraction Levels — Templates
+## 5. Three Abstraction Levels — Templates
 
-### 6.1 Gate-level (structural)
+### 5.1 Gate-level (structural)
 ```systemverilog
 module and_or_gate (input a, b, c, output y);
     wire w1;
@@ -162,7 +134,7 @@ endmodule
 ```
 Built-in primitives: `and or not nand nor xor xnor buf`. No `#()` parameter list — just `gate_name (out, in1, in2, ...);`. Multi-input gates like `and(y,a,b,c,d)` are legal.
 
-### 6.2 Dataflow (continuous assignment)
+### 5.2 Dataflow (continuous assignment)
 ```systemverilog
 module and_or_dataflow (input a, b, c, output y);
     assign y = (a & b) | c;
@@ -170,7 +142,7 @@ endmodule
 ```
 Use for anything expressible as a single Boolean equation or a mux chain via `?:`. This is where reduced SOP/POS expressions go directly.
 
-### 6.3 Behavioral (procedural)
+### 5.3 Behavioral (procedural)
 ```systemverilog
 module and_or_behavioral (input a, b, c, output logic y);
     always_comb begin
@@ -185,7 +157,7 @@ Use `always_comb` for combinational, `always_ff @(posedge clk)` for sequential. 
 
 ---
 
-## 7. Combinational Building Blocks (memorize these — they recur everywhere)
+## 6. Combinational Building Blocks (memorize these — they recur everywhere)
 
 **2:1 Mux**
 ```systemverilog
@@ -220,7 +192,7 @@ end
 
 ---
 
-## 8. Sequential Building Blocks
+## 7. Sequential Building Blocks
 
 **D Flip-Flop (async reset)**
 ```systemverilog
@@ -251,7 +223,7 @@ always_ff @(posedge clk)
 
 ---
 
-## 9. FSM Design — the Standard, Reviewable Pattern
+## 8. FSM Design — the Standard, Reviewable Pattern
 
 Always split into **3 always blocks** (state register / next-state logic / output logic). This separation is what makes an FSM readable in a code review and is close to universal industry style.
 
@@ -298,7 +270,7 @@ end
 
 ---
 
-## 10. Testbench Patterns
+## 9. Testbench Patterns
 
 **Basic exhaustive check (small input space, e.g. ≤ 3–4 input bits)**
 ```systemverilog
@@ -350,7 +322,7 @@ end
 
 ---
 
-## 11. Constraints (XDC) — Only Once You Touch Real Timing/Hardware
+## 10. Constraints (XDC) — Only Once You Touch Real Timing/Hardware
 
 **Clock definition**
 ```tcl
@@ -373,7 +345,7 @@ Green "Timing Met" in the summary = your design's setup/hold constraints are sat
 
 ---
 
-## 12. Clock Domain Crossing & Reset — Minimum Foundational Rules
+## 11. Clock Domain Crossing & Reset — Minimum Foundational Rules
 
 - One clock domain per module wherever possible. Don't casually route a signal across clock domains and hope.
 - If you must cross domains, use a **2-flop synchronizer** minimum for single-bit control signals:
@@ -388,7 +360,7 @@ end
 
 ---
 
-## 13. Debugging Inside Vivado
+## 12. Debugging Inside Vivado
 
 - **Behavioral sim waveform**: `Simulation → Run Behavioral Simulation`. Right-click any signal → `Add to Wave Window`.
 - **`$display` / `$monitor` / `$strobe`**: cheapest debug tool, use liberally in testbenches.
@@ -397,7 +369,7 @@ end
 
 ---
 
-## 14. Common Pitfalls (things that will burn you — read this twice)
+## 13. Common Pitfalls (things that will burn you — read this twice)
 
 | Symptom | Cause | Fix |
 |---|---|---|
@@ -410,7 +382,7 @@ end
 
 ---
 
-## 15. Git / GitHub Workflow for HDL Portfolios
+## 14. Git / GitHub Workflow for HDL Portfolios
 
 - One commit per meaningful step (K-map done → RTL written → testbench passing) — a readable commit history is itself a portfolio signal.
 - Each folder's `README.md` should contain: problem statement, K-map/QM work (as a Markdown table, not just an image), final reduced SOP/POS, truth table, and a screenshot/description of the passing simulation.
@@ -419,7 +391,7 @@ end
 
 ---
 
-## 16. Roadmap — What "Ultimate Weapon" Actually Points Toward
+## 15. Roadmap — What "Ultimate Weapon" Actually Points Toward
 
 This assignment level (combinational reduction, 3-style implementation) is the *foundation* layer. The path from here, roughly in order:
 
@@ -433,7 +405,7 @@ Design vs. Verification fork: design roles want clean, reusable, well-documented
 
 ---
 
-## 17. One-Page Command Reference
+## 16. One-Page Command Reference
 
 ```bash
 # CLI simulation (fast loop, no GUI)
