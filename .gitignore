@@ -14,3 +14,4 @@
 *.vcd
 *.pb
 build/
+tmp
